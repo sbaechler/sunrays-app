@@ -33,7 +33,7 @@ export interface CesiumViewProps {
 function zoomToHeight(zoom: number | null): number {
 	// grobe Web-Mercator-Äquivalenz; Default: Stadt-Ansicht
 	if (zoom === null) return 3000;
-	return Math.max(300, 40_075_000 / Math.pow(2, zoom + 1));
+	return Math.max(800, 40_075_000 / Math.pow(2, zoom + 1));
 }
 
 export function CesiumView({
@@ -50,6 +50,7 @@ export function CesiumView({
 	const callbacksRef = useRef({ onMarkerChange, onDataQuality });
 	callbacksRef.current = { onMarkerChange, onDataQuality };
 	const [ready, setReady] = useState(false);
+	const [terrainReady, setTerrainReady] = useState(false);
 
 	// Viewer initialisieren
 	useEffect(() => {
@@ -97,7 +98,11 @@ export function CesiumView({
 				return;
 			}
 			try {
-				viewer.scene.setTerrain(Cesium.Terrain.fromWorldTerrain());
+				const worldTerrain = Cesium.Terrain.fromWorldTerrain();
+				worldTerrain.readyEvent.addEventListener(() => {
+					if (!disposed) setTerrainReady(true);
+				});
+				viewer.scene.setTerrain(worldTerrain);
 				const buildings = await Cesium.createOsmBuildingsAsync();
 				if (!disposed) {
 					viewer.scene.primitives.add(buildings);
@@ -141,13 +146,25 @@ export function CesiumView({
 		const viewer = viewerRef.current;
 		if (!viewer || !ready || !marker) return;
 		const height = zoomToHeight(zoom2d);
-		viewer.camera.lookAt(
-			Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat),
-			new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-40), height),
-		);
-		viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-		viewer.scene.requestRender();
-	}, [ready]);
+		const aim = (groundHeight: number) => {
+			viewer.camera.lookAt(
+				Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight),
+				new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-40), height),
+			);
+			viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+			viewer.scene.requestRender();
+		};
+		aim(0);
+		const terrain = viewer.terrainProvider;
+		if (terrain && !(terrain instanceof Cesium.EllipsoidTerrainProvider)) {
+			// Ziel auf Geländehöhe korrigieren, sobald Terrain-Daten da sind
+			void Cesium.sampleTerrainMostDetailed(terrain, [
+				Cesium.Cartographic.fromDegrees(marker.lon, marker.lat),
+			])
+				.then(([pos]) => aim(pos?.height ?? 0))
+				.catch(() => undefined);
+		}
+	}, [ready, terrainReady]);
 
 	// Marker + Fächer synchron halten (FR6: sofortige Aktualisierung)
 	useEffect(() => {
@@ -167,6 +184,26 @@ export function CesiumView({
 			return;
 		}
 
+		// Fächer-Ursprung auf Geländehöhe heben (sonst liegt er im Terrain)
+		let cancelled = false;
+		const build = (groundHeight: number) => {
+			if (cancelled) return;
+			buildFanAndMarker(groundHeight);
+		};
+		const terrain = viewer.terrainProvider;
+		if (terrain && !(terrain instanceof Cesium.EllipsoidTerrainProvider)) {
+			void Cesium.sampleTerrainMostDetailed(terrain, [
+				Cesium.Cartographic.fromDegrees(marker.lon, marker.lat),
+			])
+				.then(([pos]) => build((pos?.height ?? 0) + 2))
+				.catch(() => build(2));
+		} else {
+			build(2);
+		}
+
+		 
+		function buildFanAndMarker(groundHeight: number) {
+		if (!viewer || !marker || !path) return;
 		// Marker (snap-to-ground via clamped Point)
 		markerEntityRef.current = viewer.entities.add({
 			position: Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat),
@@ -184,7 +221,7 @@ export function CesiumView({
 		const primitives = new Cesium.PrimitiveCollection();
 		const polylines = new Cesium.PolylineCollection();
 		const labels = new Cesium.LabelCollection();
-		const origin = Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, 2);
+		const origin = Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight);
 		const enu = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
 
 		const gold = Cesium.Color.fromCssColorString('#c9a24a');
@@ -248,7 +285,12 @@ export function CesiumView({
 		viewer.scene.primitives.add(primitives);
 		fanPrimitivesRef.current = primitives;
 		viewer.scene.requestRender();
-	}, [marker, path, ready]);
+		}
+
+		return () => {
+			cancelled = true;
+		};
+	}, [marker, path, ready, terrainReady]);
 
 	return (
 		<div className="absolute inset-0">

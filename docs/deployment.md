@@ -41,7 +41,8 @@ Streaming-Volumen einer Session gegen die 15-GB-Quote messen, PNG-Export der 3D-
 
 ## Bekannte Punkte (Stand 2026-07-06)
 
-- 3D-Globus blieb im Headless-Test-Browser (SwiftShader) schwarz; Fächer/Marker/Kamera korrekt.
-  Auf echter Hardware mit ion-Token verifizieren — falls dort ebenfalls schwarz: ImageryLayer-
-  Fallback (NaturalEarthII) debuggen.
-- PNG-Export exportiert die 2D-Ansicht; 3D-Screenshot folgt mit Story 4.1-Abschluss.
+- Story 4.1 Go/No-Go: **GO** (2026-07-07, mit ion-Token verifiziert — Terrain, Buildings,
+  Fächer auf Geländehöhe, 2D/3D-Wechsel). Der Token-lose NaturalEarthII-Fallback rendert im
+  Headless-Browser keinen Globus — auf echter Hardware gegenprüfen (niedrige Priorität).
+- PNG-Export exportiert die 2D-Ansicht; 3D-Screenshot ist Follow-up (preserveDrawingBuffer).
+- Marker in 3D: Klick-Platzierung; Drag ist Follow-up.
