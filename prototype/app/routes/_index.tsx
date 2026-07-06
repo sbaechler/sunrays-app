@@ -1,3 +1,4 @@
+import { LocateButton } from '#/Map/LocateButton';
 import { MapView } from '#/Map/MapView';
 import { markerAtom, viewModeAtom } from '#/Map/state';
 import { readUrlState, writeUrlState } from '#/Map/urlState';
@@ -33,6 +34,7 @@ export default function Index() {
 	const sun = useAtomValue(sunStateAtom);
 	const [hydratedFromUrl, setHydratedFromUrl] = useState(false);
 	const [map, setMap] = useState<maplibregl.Map | null>(null);
+	const [notice, setNotice] = useState<string | null>(null);
 	const zoomRef = useRef<number | null>(null);
 
 	// Initialen Zustand aus der URL übernehmen (Vorarbeit FR13)
@@ -140,8 +142,29 @@ export default function Index() {
 						</button>
 					))}
 				</div>
+				<LocateButton
+					onLocate={pos => {
+						handleMarkerChange(pos);
+						map?.flyTo({ center: [pos.lon, pos.lat], zoom: Math.max(map.getZoom(), 15) });
+					}}
+					onError={message => {
+						setNotice(message);
+						setTimeout(() => setNotice(null), 5000);
+					}}
+				/>
 				<ThemeToggle />
 			</div>
+
+			{notice && (
+				<div className="pointer-events-none absolute inset-x-0 top-20 z-10 flex justify-center">
+					<p
+						role="status"
+						className="rounded-panel border border-warning/50 bg-card/90 px-4 py-2 text-sm text-card-foreground shadow-sm backdrop-blur"
+					>
+						{notice}
+					</p>
+				</div>
+			)}
 
 			{/* Export & Sharing (Epic 5) */}
 			<div className="absolute bottom-4 right-4 z-10 max-sm:bottom-24">
