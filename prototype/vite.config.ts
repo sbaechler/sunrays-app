@@ -9,6 +9,10 @@ const envDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export default defineConfig(({ mode }) => ({
 	envDir,
+	define: {
+		// Cesium lädt Worker/Assets relativ zu dieser Basis (aus public/cesium)
+		CESIUM_BASE_URL: JSON.stringify('/cesium'),
+	},
 	plugins: [reactRouter(), tailwindcss()],
 	resolve: {
 		preserveSymlinks: false,

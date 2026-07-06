@@ -13,8 +13,10 @@ import { SunFanOverlay } from '#/Sun/SunFanOverlay';
 import { dateAtom, formatHours, sunStateAtom } from '#/Sun/state';
 import { useAtom, useAtomValue } from 'jotai';
 import type maplibregl from 'maplibre-gl';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import type { MetaFunction } from 'react-router';
+
+const CesiumView = lazy(() => import('#/Map/CesiumView').then(m => ({ default: m.CesiumView })));
 
 export const meta: MetaFunction = () => {
 	return [
@@ -39,6 +41,8 @@ export default function Index() {
 	const [hydratedFromUrl, setHydratedFromUrl] = useState(false);
 	const [map, setMap] = useState<maplibregl.Map | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
+	const [zoom2d, setZoom2d] = useState<number | null>(null);
+	const [dataQuality, setDataQuality] = useState<'full' | 'degraded' | null>(null);
 	const zoomRef = useRef<number | null>(null);
 
 	// Initialen Zustand aus der URL übernehmen (Vorarbeit FR13)
@@ -60,6 +64,7 @@ export default function Index() {
 	);
 
 	const handleZoomChange = useCallback((zoom: number) => {
+		setZoom2d(zoom);
 		writeUrlState({ zoom });
 	}, []);
 
@@ -90,7 +95,7 @@ export default function Index() {
 	return (
 		<div className="relative h-dvh w-full overflow-hidden">
 			{/* Karte (Story 3.1) — erst mounten, wenn der URL-State gelesen ist */}
-			{hydratedFromUrl ? (
+			{hydratedFromUrl && viewMode === '2d' ? (
 				<MapView
 					marker={marker}
 					initialZoom={zoomRef.current}
@@ -99,10 +104,36 @@ export default function Index() {
 					onMapReady={setMap}
 				/>
 			) : null}
+			{hydratedFromUrl && viewMode === '3d' ? (
+				<Suspense
+					fallback={
+						<div className="absolute inset-0 flex items-center justify-center bg-muted">
+							<p className="text-muted-foreground">{t(locale, 'loading3d')}</p>
+						</div>
+					}
+				>
+					<CesiumView
+						marker={marker}
+						path={sun.status === 'ready' ? sun.path : null}
+						zoom2d={zoom2d ?? zoomRef.current}
+						onMarkerChange={handleMarkerChange}
+						onDataQuality={setDataQuality}
+					/>
+				</Suspense>
+			) : null}
 
 			{/* Signature-Fächer (Story 3.4) */}
-			{map && marker && sun.status === 'ready' && (
+			{viewMode === '2d' && map && marker && sun.status === 'ready' && (
 				<SunFanOverlay map={map} marker={marker} path={sun.path} date={{ year, month, day }} />
+			)}
+
+			{/* FR10: Hinweis bei fehlenden 3D-Daten */}
+			{viewMode === '3d' && dataQuality === 'degraded' && (
+				<div className="pointer-events-none absolute inset-x-0 top-20 z-10 flex justify-center">
+					<p className="max-w-md rounded-panel border border-warning/50 bg-card/90 px-4 py-2 text-sm text-card-foreground shadow-sm backdrop-blur">
+						{t(locale, 'no3dData')}
+					</p>
+				</div>
 			)}
 
 			{/* Hinweise */}

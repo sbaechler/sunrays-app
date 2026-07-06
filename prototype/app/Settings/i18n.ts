@@ -45,6 +45,9 @@ export const MESSAGES = {
 		copied: 'Kopiert',
 		link: 'Link',
 		outOfRange: 'Berechnung derzeit nur bis ±65° Breite möglich.',
+		no3dData:
+			'Hochwertige 3D-Daten sind nicht verfügbar (Terrain/Gebäude). Die 2D-Ansicht ist der verlässliche Fallback.',
+		loading3d: '3D-Ansicht lädt …',
 		mapAria: 'Kartenansicht',
 		markerAria: 'Motiv-Standort',
 	},
@@ -84,6 +87,9 @@ export const MESSAGES = {
 		copied: 'Copied',
 		link: 'Link',
 		outOfRange: 'Calculation currently limited to ±65° latitude.',
+		no3dData:
+			'High-quality 3D data (terrain/buildings) is unavailable. The 2D view is the reliable fallback.',
+		loading3d: 'Loading 3D view …',
 		mapAria: 'Map view',
 		markerAria: 'Subject location',
 	},

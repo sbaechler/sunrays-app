@@ -18,9 +18,11 @@
 		"@react-router/node": "^7.15.1",
 		"@repo/api": "*",
 		"@repo/msw": "*",
+		"@repo/solar": "*",
 		"@repo/ui": "*",
 		"@tailwindcss/vite": "^4.3.0",
 		"@tinyhttp/cookie": "^2.1.1",
+		"cesium": "^1.143.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
@@ -37,7 +39,7 @@
 		"tailwindcss": "^4.3.0",
 		"tailwindcss-animate": "^1.0.7",
 		"use-container-queries": "^1.0.0",
-		"@repo/solar": "*"
+		"vite-plugin-static-copy": "^4.1.1"
 	},
 	"devDependencies": {
 		"@react-router/dev": "^7.15.1",
