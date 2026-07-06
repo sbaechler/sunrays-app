@@ -9,7 +9,8 @@ export function links() {
 
 export function Document({ children }: { children?: ReactNode }) {
   return (
-    <html lang="de">
+    // suppressHydrationWarning: das Theme-Init-Script setzt die dark-Klasse vor der Hydration
+    <html lang="de" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
