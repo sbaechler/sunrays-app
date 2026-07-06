@@ -41,7 +41,8 @@
     "mocks",
     "msw",
     "prototype",
-    "ui"
+    "ui",
+    "packages/solar"
   ],
   "dependencies": {
     "concurrently": "^9.2.1"
