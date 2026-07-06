@@ -3,8 +3,11 @@ import { MapView } from '#/Map/MapView';
 import { markerAtom, viewModeAtom } from '#/Map/state';
 import { readUrlState, writeUrlState } from '#/Map/urlState';
 import { SearchBox } from '#/Search/SearchBox';
-import { ShareControls } from '#/Sharing/ShareControls';
+import { LanguageToggle } from '#/Settings/LanguageToggle';
 import { ThemeToggle } from '#/Settings/ThemeToggle';
+import { localeAtom, t } from '#/Settings/i18n';
+import { trackEvent } from '#/Settings/telemetry';
+import { ShareControls } from '#/Sharing/ShareControls';
 import { DateControl } from '#/Sun/DateControl';
 import { SunFanOverlay } from '#/Sun/SunFanOverlay';
 import { dateAtom, formatHours, sunStateAtom } from '#/Sun/state';
@@ -32,6 +35,7 @@ export default function Index() {
 	const [viewMode, setViewMode] = useAtom(viewModeAtom);
 	const [date, setDate] = useAtom(dateAtom);
 	const sun = useAtomValue(sunStateAtom);
+	const locale = useAtomValue(localeAtom);
 	const [hydratedFromUrl, setHydratedFromUrl] = useState(false);
 	const [map, setMap] = useState<maplibregl.Map | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
@@ -72,6 +76,15 @@ export default function Index() {
 		writeUrlState({ view: mode });
 	};
 
+	// Telemetrie (FR18): eine "Simulation" = berechneter Fächer für Ort+Datum
+	const simulationKey =
+		sun.status === 'ready'
+			? `${sun.latitude.toFixed(5)},${sun.longitude.toFixed(5)},${sun.date}`
+			: null;
+	useEffect(() => {
+		if (simulationKey) trackEvent('simulation');
+	}, [simulationKey]);
+
 	const [year = 0, month = 0, day = 0] = date.split('-').map(Number);
 
 	return (
@@ -96,14 +109,14 @@ export default function Index() {
 			{marker === null && (
 				<div className="pointer-events-none absolute inset-x-0 top-20 z-10 flex justify-center">
 					<p className="rounded-panel border border-border bg-card/90 px-4 py-2 text-sm text-card-foreground shadow-sm backdrop-blur">
-						Klicke auf die Karte, um das Motiv zu markieren
+						{t(locale, 'clickToPlaceMarker')}
 					</p>
 				</div>
 			)}
 			{sun.status === 'out-of-range' && (
 				<div className="pointer-events-none absolute inset-x-0 top-20 z-10 flex justify-center">
 					<p className="rounded-panel border border-warning/50 bg-card/90 px-4 py-2 text-sm text-card-foreground shadow-sm backdrop-blur">
-						{sun.message}
+						{t(locale, 'outOfRange')}
 					</p>
 				</div>
 			)}
@@ -122,7 +135,7 @@ export default function Index() {
 			<div className="absolute right-4 top-4 z-10 flex items-center gap-2">
 				<div
 					role="group"
-					aria-label="Ansicht wählen"
+					aria-label={t(locale, 'viewChoose')}
 					className="flex overflow-hidden rounded-panel border border-border bg-card shadow-sm"
 				>
 					{(['2d', '3d'] as const).map(mode => (
@@ -152,6 +165,7 @@ export default function Index() {
 						setTimeout(() => setNotice(null), 5000);
 					}}
 				/>
+				<LanguageToggle />
 				<ThemeToggle />
 			</div>
 
@@ -177,7 +191,9 @@ export default function Index() {
 					<p className="rounded-panel border border-border bg-card/90 px-4 py-1.5 text-sm text-card-foreground shadow-sm backdrop-blur">
 						<span className="text-sun-riseset">↑ {formatHours(sun.path.sunRiseHours)}</span>
 						<span className="mx-2 text-muted-foreground">·</span>
-						<span>Kulmination {formatHours(sun.path.sunTransitHours)}</span>
+						<span>
+							{t(locale, 'culmination')} {formatHours(sun.path.sunTransitHours)}
+						</span>
 						<span className="mx-2 text-muted-foreground">·</span>
 						<span className="text-sun-riseset">↓ {formatHours(sun.path.sunSetHours)}</span>
 						<span className="ml-2 text-xs text-muted-foreground">({sun.timeZone})</span>
