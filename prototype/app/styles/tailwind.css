@@ -1,9 +1,108 @@
 @import 'tailwindcss' source("../");
 @source inline("../../ui/src");
 
-@layer base {
+@custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Sunrays Design-Tokens (UX-Spec "Visual Design Foundation")
+ * Dark  = A. Night Observatory   (Navy-Basis, Brass/Teal-Akzente)
+ * Light = I. Light Observatory   (Sand-Basis, Teal/Gold-Akzente)
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* Marken-Palette (Orloj) */
+  --color-navy-900: #0e1c2a; /* Night-Navy */
+  --color-navy-800: #1c2f41; /* Slate-Navy */
+  --color-brass-500: #c9a24a; /* Brass-Gold */
+  --color-brass-700: #9a7a2d; /* Antique-Gold */
+  --color-teal-600: #2a7c83; /* Astral-Teal */
+  --color-teal-400: #4ca2a8; /* Sea-Teal */
+  --color-sand-50: #f6f1e7;
+  --color-sand-100: #ede4d4;
+  --color-stone-600: #6c635b;
+  --color-ink-900: #0b0f14;
+
+  /* Semantik */
+  --color-success: #2f8f6b;
+  --color-warning: #d9a441;
+  --color-error: #b3473a;
+  --color-info: #2a7c83;
+
+  /* Sonnen-Fächer (Vorgriff auf FR7/FR8, aus der Marken-Palette) */
+  --color-sun-vector: var(--sun-vector);
+  --color-sun-riseset: var(--sun-riseset);
+
+  --font-sans: system-ui, -apple-system, 'SF Pro Text', 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  --radius-panel: 0.75rem;
 }
-@layer base {
 
+@layer base {
+  /* Light Observatory (Default) */
+  :root {
+    --background: #f6f1e7; /* Sand-50 */
+    --foreground: #0b0f14; /* Ink-900 */
+    --card: #fffdf8;
+    --card-foreground: #0b0f14;
+    --muted: #ede4d4; /* Sand-100 */
+    --muted-foreground: #6c635b; /* Stone-600 */
+    --border: color-mix(in srgb, #6c635b 28%, transparent);
+    --input: #fffdf8;
+    --ring: #2a7c83; /* Astral-Teal */
+    --primary: #0e1c2a; /* Night-Navy */
+    --primary-foreground: #f6f1e7;
+    --accent: #2a7c83;
+    --accent-foreground: #f6f1e7;
+    --sun-vector: #9a7a2d; /* Antique-Gold: genug Kontrast auf Sand */
+    --sun-riseset: #2a7c83;
+  }
+
+  /* Night Observatory */
+  .dark {
+    --background: #0e1c2a; /* Night-Navy */
+    --foreground: #f6f1e7; /* Sand-50 */
+    --card: #1c2f41; /* Slate-Navy */
+    --card-foreground: #f6f1e7;
+    --muted: color-mix(in srgb, #1c2f41 70%, #0e1c2a);
+    --muted-foreground: color-mix(in srgb, #f6f1e7 62%, #0e1c2a);
+    --border: color-mix(in srgb, #f6f1e7 16%, transparent);
+    --input: #1c2f41;
+    --ring: #4ca2a8; /* Sea-Teal: hellere Variante für Dark */
+    --primary: #c9a24a; /* Brass-Gold als Akzent-Primary */
+    --primary-foreground: #0b0f14;
+    --accent: #4ca2a8;
+    --accent-foreground: #0b0f14;
+    --sun-vector: #c9a24a;
+    --sun-riseset: #4ca2a8;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    font-size: 1rem; /* >= 16px Body (NFR5) */
+    line-height: 1.5;
+  }
+
+  /* Klar sichtbare Fokus-Zustände (NFR5) */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
