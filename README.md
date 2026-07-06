@@ -46,9 +46,13 @@ See the README inside each example directory for its own setup and copyable patt
 
 ## Sunrays-Projektkontext
 
-Dieses Repo ist der Web-Rewrite der Legacy-Desktop-App [Sunrays](https://github.com/) (Python/wxWidgets, lokal: `~/projects/Sunrays`, read-only Referenz).
+Dieses Repo ist der Web-Rewrite der Legacy-Desktop-App [Sunrays](https://github.com/)
+(Python/wxWidgets, lokal: `~/projects/Sunrays`, read-only Referenz).
 
-- **Planungs-Artefakte** (PRD, Architektur, UX-Spec, Epics & Stories): `~/projects/Sunrays/_bmad-output/planning-artifacts/`
+- **Planungs-Artefakte** (PRD, Architektur, UX-Spec, Epics & Stories):
+  `~/projects/Sunrays/_bmad-output/planning-artifacts/`
 - **Umsetzungsreihenfolge:** `epics.md` dort; Stack-Entscheidungen im `3d-tech-spike-report.md`
-- **Stack:** CesiumJS + Cesium ion Community (3D), MapLibre GL JS + OpenFreeMap (2D), Geoapify/Photon (Geocoding), Cloudflare Pages (Hosting)
-- **`packages/solar`:** Berechnungskern, portiert aus der Legacy-Engine, verifiziert durch Golden-Tests (±0,1° / ±1 min)
+- **Stack:** CesiumJS + Cesium ion Community (3D), MapLibre GL JS + OpenFreeMap (2D),
+  Geoapify/Photon (Geocoding), Cloudflare Pages (Hosting)
+- **`packages/solar`:** Berechnungskern, portiert aus der Legacy-Engine, verifiziert durch
+  Golden-Tests (±0,1° / ±1 min)

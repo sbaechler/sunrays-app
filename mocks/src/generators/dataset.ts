@@ -8,9 +8,9 @@ export type Dataset = Record<string, never>;
 export type DatasetIndexes = Record<string, never>;
 
 type DatasetBuildResult = {
-  config: DatasetConfig;
-  data: Dataset;
-  indexes: DatasetIndexes;
+	config: DatasetConfig;
+	data: Dataset;
+	indexes: DatasetIndexes;
 };
 
 /**
@@ -18,9 +18,9 @@ type DatasetBuildResult = {
  * Replace it with your own domain-specific generators as your project takes shape.
  */
 export function buildDataset(config: DatasetConfig): DatasetBuildResult {
-  return {
-    config,
-    data: {},
-    indexes: {},
-  };
+	return {
+		config,
+		data: {},
+		indexes: {},
+	};
 }

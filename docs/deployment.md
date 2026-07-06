@@ -12,7 +12,8 @@ Einmalige manuelle Einrichtung (Account-gebunden, kann nicht automatisiert werde
    ```bash
    gh repo create sunrays-web --private --source . --push
    ```
-2. Cloudflare Dashboard → Workers & Pages → **Create → Pages → Connect to Git** → `sunrays-web` wählen.
+2. Cloudflare Dashboard → Workers & Pages → **Create → Pages → Connect to Git** → `sunrays-web`
+   wählen.
 3. Build-Konfiguration:
    - **Build command:** `npm run build`
    - **Build output directory:** `prototype/build/client` (Prototype-Phase; später `frontend/dist`)

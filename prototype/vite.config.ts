@@ -1,8 +1,8 @@
+import { reactRouter } from '@react-router/dev/vite';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { reactRouter } from '@react-router/dev/vite';
 import { defineConfig } from 'vite';
-import tailwindcss from "@tailwindcss/vite";
 
 // `.env` lives at the monorepo root, not inside this workspace.
 const envDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

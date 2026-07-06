@@ -5,13 +5,13 @@
 import type { SunPath } from '@repo/solar';
 
 export interface FanVector {
-  kind: 'hour' | 'sunrise' | 'sunset';
-  label: string;
-  azimuthDeg: number;
-  altitudeDeg: number;
-  /** Einheitsvektor der Bildschirm-Richtung (vom Marker weg). */
-  dx: number;
-  dy: number;
+	kind: 'hour' | 'sunrise' | 'sunset';
+	label: string;
+	azimuthDeg: number;
+	altitudeDeg: number;
+	/** Einheitsvektor der Bildschirm-Richtung (vom Marker weg). */
+	dx: number;
+	dy: number;
 }
 
 /**
@@ -20,49 +20,49 @@ export interface FanVector {
  * der Karte (0 = Norden oben).
  */
 export function buildFanVectors(
-  path: SunPath,
-  mapBearingDeg: number,
-  sunAzimuthAt: (decimalHours: number) => number,
+	path: SunPath,
+	mapBearingDeg: number,
+	sunAzimuthAt: (decimalHours: number) => number,
 ): FanVector[] {
-  const vectors: FanVector[] = [];
+	const vectors: FanVector[] = [];
 
-  const toScreen = (azimuthDeg: number) => {
-    const angleRad = ((azimuthDeg - mapBearingDeg) * Math.PI) / 180;
-    return { dx: Math.sin(angleRad), dy: -Math.cos(angleRad) };
-  };
+	const toScreen = (azimuthDeg: number) => {
+		const angleRad = ((azimuthDeg - mapBearingDeg) * Math.PI) / 180;
+		return { dx: Math.sin(angleRad), dy: -Math.cos(angleRad) };
+	};
 
-  if (path.sunRiseHours !== null) {
-    const az = sunAzimuthAt(path.sunRiseHours);
-    vectors.push({
-      kind: 'sunrise',
-      label: 'Aufgang',
-      azimuthDeg: az,
-      altitudeDeg: 0,
-      ...toScreen(az),
-    });
-  }
+	if (path.sunRiseHours !== null) {
+		const az = sunAzimuthAt(path.sunRiseHours);
+		vectors.push({
+			kind: 'sunrise',
+			label: 'Aufgang',
+			azimuthDeg: az,
+			altitudeDeg: 0,
+			...toScreen(az),
+		});
+	}
 
-  for (const h of path.hours) {
-    if (h.altitudeRefractedDeg <= 0) continue;
-    vectors.push({
-      kind: 'hour',
-      label: String(h.localHour),
-      azimuthDeg: h.azimuthDeg,
-      altitudeDeg: h.altitudeRefractedDeg,
-      ...toScreen(h.azimuthDeg),
-    });
-  }
+	for (const h of path.hours) {
+		if (h.altitudeRefractedDeg <= 0) continue;
+		vectors.push({
+			kind: 'hour',
+			label: String(h.localHour),
+			azimuthDeg: h.azimuthDeg,
+			altitudeDeg: h.altitudeRefractedDeg,
+			...toScreen(h.azimuthDeg),
+		});
+	}
 
-  if (path.sunSetHours !== null) {
-    const az = sunAzimuthAt(path.sunSetHours);
-    vectors.push({
-      kind: 'sunset',
-      label: 'Untergang',
-      azimuthDeg: az,
-      altitudeDeg: 0,
-      ...toScreen(az),
-    });
-  }
+	if (path.sunSetHours !== null) {
+		const az = sunAzimuthAt(path.sunSetHours);
+		vectors.push({
+			kind: 'sunset',
+			label: 'Untergang',
+			azimuthDeg: az,
+			altitudeDeg: 0,
+			...toScreen(az),
+		});
+	}
 
-  return vectors;
+	return vectors;
 }

@@ -2,8 +2,8 @@ import { atom } from 'jotai';
 
 /** Marker-Position (Motiv-Standort, FR2). */
 export interface MarkerPosition {
-  lat: number;
-  lon: number;
+	lat: number;
+	lon: number;
 }
 
 export const markerAtom = atom<MarkerPosition | null>(null);
