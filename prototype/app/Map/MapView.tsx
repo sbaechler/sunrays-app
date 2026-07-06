@@ -53,6 +53,8 @@ export function MapView({
 			center: marker ? [marker.lon, marker.lat] : DEFAULT_CENTER,
 			zoom: initialZoom ?? (marker ? 14 : DEFAULT_ZOOM),
 			attributionControl: { compact: false },
+			// PNG-Export (Story 5.1): Canvas muss nach dem Rendern lesbar bleiben
+			canvasContextAttributes: { preserveDrawingBuffer: true },
 		});
 		map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
 

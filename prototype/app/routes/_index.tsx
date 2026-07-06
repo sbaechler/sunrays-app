@@ -2,6 +2,7 @@ import { MapView } from '#/Map/MapView';
 import { markerAtom, viewModeAtom } from '#/Map/state';
 import { readUrlState, writeUrlState } from '#/Map/urlState';
 import { SearchBox } from '#/Search/SearchBox';
+import { ShareControls } from '#/Sharing/ShareControls';
 import { ThemeToggle } from '#/Settings/ThemeToggle';
 import { DateControl } from '#/Sun/DateControl';
 import { SunFanOverlay } from '#/Sun/SunFanOverlay';
@@ -140,6 +141,11 @@ export default function Index() {
 					))}
 				</div>
 				<ThemeToggle />
+			</div>
+
+			{/* Export & Sharing (Epic 5) */}
+			<div className="absolute bottom-4 right-4 z-10 max-sm:bottom-24">
+				<ShareControls map={map} marker={marker} sun={sun} />
 			</div>
 
 			{/* Datum & Tagesdaten (Story 3.3/3.4) */}
