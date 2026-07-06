@@ -1,0 +1,7 @@
+/node_modules
+/examples
+package-lock.json
+.gitignore
+.cursorrules.md
+**/public
+.htaccess

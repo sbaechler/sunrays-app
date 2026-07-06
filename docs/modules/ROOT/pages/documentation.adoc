@@ -1,0 +1,93 @@
+= Documentation
+:experimental:
+:url-antora-docs: https://docs.antora.org/antora/latest/
+:url-kroki-docs: https://docs.kroki.io/kroki/
+
+== Overview
+
+The developer documentation is built with {url-antora-docs}[Antora] and published via GitLab Pages.
+
+* URL:
+* Automatic deployment on push to `main`
+* Versioning via Git
+
+== Structure
+
+[source]
+----
+docs/
+├── antora.yml          # Antora project configuration
+├── antora-playbook.yml # Site generator configuration
+└── modules/
+    └── ROOT/
+        ├── nav.adoc    # Navigation
+        ├── pages/      # Documentation pages
+        └── partials/   # Reusable content
+----
+
+== Diagrams
+
+The documentation supports various diagram types via {url-kroki-docs}[Kroki]:
+
+=== PlantUML
+
+[source,asciidoc]
+----
+[plantuml,format=svg]
+----
+@startuml
+package "Frontend" {
+  [Components]
+  [Routes]
+}
+[Components] --> [Routes]
+@enduml
+----
+----
+
+=== Other diagram types
+
+* Mermaid
+* C4 (with PlantUML)
+* GraphViz
+* ...
+
+See {url-kroki-docs}#diagram-types[Kroki Diagram Types] for a complete list.
+
+== Local development
+
+=== Prerequisites
+
+* Node.js >= 22.0.0
+* npm >= 10.0.0
+
+=== Generate documentation locally
+
+[source,bash]
+----
+# Inside the docs directory
+npm run docs
+----
+
+The generated documentation will be available under `docs/build`.
+
+== Best practices
+
+* Document new features in parallel with implementation
+* Use diagrams for complex relationships
+* Extract reusable content into `partials`
+* Use `xref:` for internal links
+
+== Deployment
+
+Deployment is handled automatically via the GitLab CI/CD pipeline:
+
+* Trigger: Push to `main`
+* Output: Static pages
+* Hosting: GitLab Pages
+
+== Useful links
+
+* {url-antora-docs}[Antora documentation]
+* {url-antora-docs}asciidoc/page/[AsciiDoc Syntax Guide]
+* {url-kroki-docs}[Kroki documentation]

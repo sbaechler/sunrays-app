@@ -1,0 +1,42 @@
+@startuml
+!define RECTANGLE class
+
+skinparam component {
+  BackgroundColor<<app>> LightBlue
+  BackgroundColor<<package>> LightGreen
+}
+
+package "Sunrays Frontend Monorepo" {
+  [prototype]<<app>> as prototype
+  [frontend]<<app>> as frontend
+  [api]<<package>> as api
+  [docs]<<app>> as docs
+  [mocks]<<package>> as mockData
+  [msw]<<package>> as mockApi
+  [ui]<<package>> as ui
+  [config/eslint]<<package>> as eslintConfig
+  [config/typescript]<<package>> as typescriptConfig
+}
+
+prototype --> api : uses
+prototype --> mockApi : uses
+prototype --> ui : uses
+
+frontend --> api : uses
+frontend --> mockApi : uses
+frontend --> ui : uses
+
+mockApi --> mockData : uses
+mockApi --> api : uses
+mockData --> api : uses
+
+note top of prototype : Sunrays Application Prototype
+note top of frontend : Sunrays Application Frontend
+note bottom of api : Domain types and enums
+note bottom of mockData : Synthetic data
+note left of mockApi : Mock API via Service Worker
+note right of ui : React component library
+note top of eslintConfig : ESLint configurations
+note top of typescriptConfig : TypeScript configurations
+
+@enduml

@@ -1,0 +1,63 @@
+= Monorepo
+
+See also README.md.
+
+We use Turborepo with the https://turbo.build/repo/docs/core-concepts/internal-packages#compiled-packages[Compiled Packages] strategy.
+
+All packages are ESM modules and use the `@repo` scope.
+
+== Apps and packages
+
+- `@repo/frontend`: Placeholder for the production frontend
+- `@repo/prototype`: Minimal prototype for early UX validation
+- `@repo/api`: Domain types and enums
+- `@repo/docs`: Antora documentation
+- `@repo/mocks`: Starter for generated mock data
+- `@repo/msw`: Starter for MSW handlers
+- `@repo/ui`: Shared UI components
+- `@repo/eslint-config`: `eslint` configurations
+- `@repo/typescript-config`: Shared `tsconfig.json`
+
+== Build
+
+The base workspaces are built via Turborepo:
+
+```
+npm run build
+```
+
+Other useful commands:
+
+```
+npm run build:data
+npm run build:msw
+npm run build:prototype
+```
+
+== Development
+
+To start base development:
+
+```
+npm run dev
+```
+
+== Optional examples
+
+Examples are generated under `examples/<name>/` and intentionally excluded from the root workspaces.
+
+This means:
+
+* Turborepo ignores them by default
+* They can be installed separately
+* They can be deleted at any time
+
+== Structure
+
+[plantuml,monorepo,svg,role=component]
+----
+include::partial$monorepo.puml[]
+----
+
+The monorepo uses the `exports` and `imports` directives from Node ESM modules.
+All exported namespaces must be declared in the package's `package.json`.

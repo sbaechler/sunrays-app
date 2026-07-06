@@ -1,0 +1,9 @@
+@import 'tailwindcss' source("../");
+@source inline("../../ui/src");
+
+@layer base {
+
+}
+@layer base {
+
+}
