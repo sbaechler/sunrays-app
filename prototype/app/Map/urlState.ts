@@ -9,6 +9,8 @@ export interface UrlState {
   marker: MarkerPosition | null;
   zoom: number | null;
   view: ViewMode | null;
+  /** ISO-Datum YYYY-MM-DD */
+  date: string | null;
 }
 
 export function readUrlState(search: string): UrlState {
@@ -24,6 +26,7 @@ export function readUrlState(search: string): UrlState {
         : null,
     zoom: Number.isFinite(zoom) && params.has('z') ? zoom : null,
     view: view === '2d' || view === '3d' ? view : null,
+    date: /^\d{4}-\d{2}-\d{2}$/.test(params.get('d') ?? '') ? params.get('d') : null,
   };
 }
 
@@ -32,6 +35,7 @@ export function writeUrlState(state: {
   marker?: MarkerPosition | null;
   zoom?: number;
   view?: ViewMode;
+  date?: string;
 }): void {
   const params = new URLSearchParams(window.location.search);
   if (state.marker !== undefined) {
@@ -45,6 +49,7 @@ export function writeUrlState(state: {
   }
   if (state.zoom !== undefined) params.set('z', state.zoom.toFixed(2));
   if (state.view) params.set('v', state.view);
+  if (state.date) params.set('d', state.date);
   const query = params.toString();
   window.history.replaceState(null, '', query ? `?${query}` : window.location.pathname);
 }

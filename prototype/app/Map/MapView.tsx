@@ -19,6 +19,8 @@ export interface MapViewProps {
   initialZoom?: number | null;
   onMarkerChange: (marker: MarkerPosition) => void;
   onZoomChange?: (zoom: number) => void;
+  /** Liefert die Map-Instanz nach der Initialisierung (für Overlays). */
+  onMapReady?: (map: maplibregl.Map) => void;
 }
 
 function createMarkerElement(): HTMLDivElement {
@@ -28,12 +30,18 @@ function createMarkerElement(): HTMLDivElement {
   return el;
 }
 
-export function MapView({ marker, initialZoom, onMarkerChange, onZoomChange }: MapViewProps) {
+export function MapView({
+  marker,
+  initialZoom,
+  onMarkerChange,
+  onZoomChange,
+  onMapReady,
+}: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
-  const callbacksRef = useRef({ onMarkerChange, onZoomChange });
-  callbacksRef.current = { onMarkerChange, onZoomChange };
+  const callbacksRef = useRef({ onMarkerChange, onZoomChange, onMapReady });
+  callbacksRef.current = { onMarkerChange, onZoomChange, onMapReady };
 
   // Karte initialisieren (einmalig)
   useEffect(() => {
@@ -56,6 +64,7 @@ export function MapView({ marker, initialZoom, onMarkerChange, onZoomChange }: M
     });
 
     mapRef.current = map;
+    callbacksRef.current.onMapReady?.(map);
     return () => {
       markerRef.current = null;
       mapRef.current = null;
