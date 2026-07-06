@@ -122,7 +122,7 @@ export default function Index() {
 			)}
 
 			{/* Suche (Story 3.2) */}
-			<div className="absolute left-4 top-4 z-10 w-[min(22rem,calc(100%-7rem))]">
+			<div className="absolute left-4 top-4 z-10 w-[min(22rem,calc(100%-7rem))] max-sm:top-[4.25rem] max-sm:w-[calc(100%-2rem)]">
 				<SearchBox
 					onSelect={r => {
 						handleMarkerChange({ lat: r.lat, lon: r.lon });
@@ -181,7 +181,7 @@ export default function Index() {
 			)}
 
 			{/* Export & Sharing (Epic 5) */}
-			<div className="absolute bottom-4 right-4 z-10 max-sm:bottom-24">
+			<div className="absolute bottom-4 right-4 z-10 max-sm:bottom-40">
 				<ShareControls map={map} marker={marker} sun={sun} />
 			</div>
 
