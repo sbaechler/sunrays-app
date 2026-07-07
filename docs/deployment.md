@@ -1,25 +1,35 @@
 # Deployment (Story 1.2)
 
+## Repository
+
+GitHub: <https://github.com/sbaechler/sunrays-app> (Default-Branch `main`, bereits gepusht). Der
+Name `sunrays-web` war für die Marketing-Page vergeben — daher `sunrays-app`.
+
 ## CI
 
-`.github/workflows/ci.yml` führt bei jedem Push/PR aus: lint, typecheck, test, build.
+`.github/workflows/ci.yml` läuft bei jedem Push auf `main` und bei jedem PR, in zwei Jobs:
+
+- **verify:** lint, typecheck, test (Unit), build, Bundle-Budget
+  (`frontend/scripts/check-bundle-budget.mjs`)
+- **e2e:** Playwright-Smoke (`frontend/e2e/`), lädt Report als Artefakt bei Fehlschlag hoch
 
 ## Cloudflare Pages (Produktion)
 
 Einmalige manuelle Einrichtung (Account-gebunden, kann nicht automatisiert werden):
 
-1. GitHub-Repo anlegen und pushen:
-   ```bash
-   gh repo create sunrays-web --private --source . --push
-   ```
-2. Cloudflare Dashboard → Workers & Pages → **Create → Pages → Connect to Git** → `sunrays-web`
-   wählen.
-3. Build-Konfiguration:
+1. Cloudflare Dashboard → Workers & Pages → **Create → Pages → Connect to Git** →
+   `sbaechler/sunrays-app` wählen.
+2. Build-Konfiguration:
    - **Build command:** `npm run build`
    - **Build output directory:** `frontend/build/client`
    - **Node version:** `22` (Environment Variable `NODE_VERSION=22`)
+3. **Environment Variables setzen** (siehe Tabelle unten) — die `.env` ist gitignored und wird
+   **nicht** mitgepusht, deshalb müssen die Tokens direkt in den Pages-Build-Settings hinterlegt
+   werden. Ohne `VITE_CESIUM_ION_TOKEN` startet die 3D-Ansicht im degradierten Modus (FR10).
 4. Preview-Deployments für Branches sind bei Cloudflare Pages automatisch aktiv.
-5. Deployment-URL nach dem ersten Build hier eintragen: `https://<projekt>.pages.dev`
+5. Security-Header und Caching kommen aus `frontend/public/_headers` (wird von Pages automatisch
+   ausgewertet); der Service-Worker (`frontend/public/sw.js`) hält die App-Shell offline.
+6. Deployment-URL nach dem ersten Build hier eintragen: `https://<projekt>.pages.dev`
 
 ## Telemetrie-Setup (Story 6.4, später)
 
@@ -30,23 +40,23 @@ Einmalige manuelle Einrichtung (Account-gebunden, kann nicht automatisiert werde
 
 In `.env` (Monorepo-Root) eintragen — alle optional, App degradiert kontrolliert ohne sie:
 
-| Variable | Dienst | Wirkung |
-|---|---|---|
-| `VITE_CESIUM_ION_TOKEN` | Cesium ion Community (kostenlos) | 3D: World Terrain + OSM Buildings; ohne Token: Hinweisbanner + Minimal-Globus (FR10) |
-| `VITE_GEOAPIFY_KEY` | Geoapify Free | Geocoding-Primärprovider; ohne Key läuft Photon (key-los) |
-| `VITE_UMAMI_WEBSITE_ID` (+ optional `VITE_UMAMI_SRC`) | Umami Cloud Free | Custom-Event-Telemetrie; ohne ID keine Events |
+| Variable                                              | Dienst                           | Wirkung                                                                              |
+| ----------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------ |
+| `VITE_CESIUM_ION_TOKEN`                               | Cesium ion Community (kostenlos) | 3D: World Terrain + OSM Buildings; ohne Token: Hinweisbanner + Minimal-Globus (FR10) |
+| `VITE_GEOAPIFY_KEY`                                   | Geoapify Free                    | Geocoding-Primärprovider; ohne Key läuft Photon (key-los)                            |
+| `VITE_UMAMI_WEBSITE_ID` (+ optional `VITE_UMAMI_SRC`) | Umami Cloud Free                 | Custom-Event-Telemetrie; ohne ID keine Events                                        |
 
 Nach Eintrag des ion-Tokens: Story 4.1 Go/No-Go-PoC abschließen (Terrain/Gebäude prüfen,
 Streaming-Volumen einer Session gegen die 15-GB-Quote messen, PNG-Export der 3D-Szene testen).
 
 ## Bekannte Punkte (Stand 2026-07-06)
 
-- Story 4.1 Go/No-Go: **GO** (2026-07-07, mit ion-Token verifiziert — Terrain, Buildings,
-  Fächer auf Geländehöhe, 2D/3D-Wechsel). Der Token-lose NaturalEarthII-Fallback rendert im
-  Headless-Browser keinen Globus — auf echter Hardware gegenprüfen (niedrige Priorität).
-- ~~PNG-Export exportiert die 2D-Ansicht; 3D-Screenshot ist Follow-up~~ — erledigt (2026-07-07):
-  PNG exportiert die jeweils aktive Ansicht, in 3D via preserveDrawingBuffer + Legende/Attribution.
+- Story 4.1 Go/No-Go: **GO** (2026-07-07, mit ion-Token verifiziert — Terrain, Buildings, Fächer auf
+  Geländehöhe, 2D/3D-Wechsel). Der Token-lose NaturalEarthII-Fallback rendert im Headless-Browser
+  keinen Globus — auf echter Hardware gegenprüfen (niedrige Priorität).
+- ~~PNG-Export exportiert die 2D-Ansicht; 3D-Screenshot ist Follow-up~~ — erledigt (2026-07-07): PNG
+  exportiert die jeweils aktive Ansicht, in 3D via preserveDrawingBuffer + Legende/Attribution.
 - ~~Marker in 3D: Klick-Platzierung; Drag ist Follow-up~~ — erledigt (2026-07-07): Drag auf dem
   Marker verschiebt ihn (Kamera-Inputs pausiert, Commit beim Loslassen wie in 2D).
-- Karten-Style (2D) wird beim Laden entsättigt (`MAP_SATURATION` in `app/Map/mapStyle.ts`),
-  damit sich der Fächer abhebt; Start-Zoom ist Strassen-Niveau (`STREET_ZOOM`).
+- Karten-Style (2D) wird beim Laden entsättigt (`MAP_SATURATION` in `app/Map/mapStyle.ts`), damit
+  sich der Fächer abhebt; Start-Zoom ist Strassen-Niveau (`STREET_ZOOM`).
