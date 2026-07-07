@@ -1,5 +1,0 @@
-name: 'sunrays-frontend'
-title: 'Sunrays Frontend'
-version: true
-nav:
-  - modules/ROOT/nav.adoc

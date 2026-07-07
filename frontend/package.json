@@ -1,12 +1,49 @@
 {
-  "name": "@repo/frontend",
-  "private": true,
-  "sideEffects": false,
-  "type": "module",
-  "scripts": {},
-  "dependencies": {
-    "@repo/api": "*",
-    "@repo/msw": "*",
-    "@repo/ui": "*"
-  }
+	"name": "@repo/frontend",
+	"private": true,
+	"sideEffects": false,
+	"type": "module",
+	"scripts": {
+		"build": "react-router build",
+		"dev": "react-router dev",
+		"clean": "rimraf build && rimraf .turbo",
+		"lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"test:e2e": "playwright test",
+		"typecheck": "react-router typegen && tsc",
+		"format": "prettier --write ."
+	},
+	"dependencies": {
+		"@react-router/node": "^7.15.1",
+		"@repo/solar": "*",
+		"@repo/ui": "*",
+		"@tailwindcss/vite": "^4.3.2",
+		"cesium": "^1.143.0",
+		"clsx": "^2.1.1",
+		"isbot": "^5",
+		"jotai": "^2.20.1",
+		"lucide-react": "^1.23.0",
+		"maplibre-gl": "^5.24.0",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7",
+		"react-router": "^7.15.1",
+		"tailwind-merge": "^3.6.0",
+		"tailwindcss": "^4.3.2",
+		"tailwindcss-animate": "^1.0.7"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.61.1",
+		"@react-router/dev": "^7.15.1",
+		"@repo/eslint-config": "*",
+		"@repo/typescript-config": "*",
+		"@tailwindcss/typography": "^0.5.20",
+		"@types/node": "^25.9.1",
+		"@types/react": "^19.2.17",
+		"@types/react-dom": "^19.2.3",
+		"autoprefixer": "^10.5.2",
+		"eslint-plugin-react-compiler": "^19.1.0-rc.2",
+		"prettier": "^3.9.4",
+		"vitest": "^4.1.9"
+	}
 }

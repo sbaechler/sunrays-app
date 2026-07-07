@@ -16,7 +16,7 @@ Einmalige manuelle Einrichtung (Account-gebunden, kann nicht automatisiert werde
    wählen.
 3. Build-Konfiguration:
    - **Build command:** `npm run build`
-   - **Build output directory:** `prototype/build/client` (Prototype-Phase; später `frontend/dist`)
+   - **Build output directory:** `frontend/build/client`
    - **Node version:** `22` (Environment Variable `NODE_VERSION=22`)
 4. Preview-Deployments für Branches sind bei Cloudflare Pages automatisch aktiv.
 5. Deployment-URL nach dem ersten Build hier eintragen: `https://<projekt>.pages.dev`

@@ -1,48 +1,30 @@
-# Sunrays Frontend Monorepo
+# Sunrays Monorepo
 
-This monorepo is the default Tinker Stack starter for Sunrays.
+Web-App **Sunrays**: Sonnenverlauf für Ort und Datum — Planungstool für DoPs und Fotograf:innen.
+Basierend auf dem Tinker-Stack-Starter.
 
-It is intentionally lightweight:
+Workspaces:
 
-- `@repo/prototype`: a minimal React Router prototype shell
-- `@repo/api`: shared domain types and enums
-- `@repo/docs`: Antora-based project documentation
-- `@repo/mocks`: starter-safe mock-data package
-- `@repo/msw`: starter-safe MSW package
-- `@repo/ui`: shared UI primitives
+- `frontend`: die produktive React-Router-SPA (siehe `frontend/README.md`)
+- `packages/solar`: Berechnungskern (golden-getestet gegen die Python-Legacy-App)
+- `ui`: geteilte UI-Primitives und Tailwind-Theme
+- `config/*`: geteilte ESLint-/TypeScript-Konfiguration
+- `docs`: Antora-Projektdokumentation
 
-## Build
+## Build & Entwicklung
 
-Run commands from the repository root:
+Vom Repository-Root:
 
 ```bash
-npm run build
+npm run dev        # Dev-Server (turbo)
+npm run build      # Produktions-Build (frontend/build/client)
+npm run lint
 npm run typecheck
-npm run test
+npm run test       # Unit-Tests (Solar-Engine, Map-Style)
 ```
 
-`npm run build:data` is available for the `@repo/mocks` package and succeeds even before you add
-real generators.
-
-## Development
-
-Start the prototype and package watchers:
-
-```bash
-npm run dev
-```
-
-## Examples
-
-Optional examples, when generated, live under `examples/<name>/`.
-
-They are independent from this monorepo:
-
-- they are not listed in the root workspaces
-- they are not built by default Turbo commands
-- they can be installed, run, or deleted separately
-
-See the README inside each example directory for its own setup and copyable patterns.
+E2E-Smoke und Bundle-Budget laufen im `frontend`-Workspace (`npm run test:e2e`,
+`node scripts/check-bundle-budget.mjs`) und in der CI.
 
 ## Sunrays-Projektkontext
 

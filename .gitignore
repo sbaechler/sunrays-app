@@ -1,6 +1,10 @@
 node_modules/
 dist/
 .turbo/
+frontend/build/
+.react-router/
+test-results/
+playwright-report/
 .env
 *.local
 .DS_Store
