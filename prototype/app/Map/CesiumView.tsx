@@ -9,7 +9,8 @@
  *   funktionsfähig, der Fächer ist trotzdem räumlich lesbar.
  *
  * Der Fächer (Story 4.3) wird als Polylines + Labels am Marker gerendert;
- * Elevation = tatsächlicher Sonnenstand. Klick setzt den Marker neu (FR2).
+ * Elevation = tatsächlicher Sonnenstand. Klick setzt den Marker neu (FR2),
+ * Drag auf dem Marker verschiebt ihn (Kamera-Inputs währenddessen pausiert).
  */
 import type { MarkerPosition } from '#/Map/state';
 import { trackEvent } from '#/Settings/telemetry';
@@ -28,6 +29,8 @@ export interface CesiumViewProps {
 	onMarkerChange: (marker: MarkerPosition) => void;
 	/** FR10: keine hochwertigen 3D-Daten verfügbar (Token fehlt / Fehler). */
 	onDataQuality: (quality: 'full' | 'degraded') => void;
+	/** Liefert den Viewer nach der Initialisierung (für den PNG-Export). */
+	onViewerReady?: (viewer: Cesium.Viewer | null) => void;
 }
 
 function zoomToHeight(zoom: number | null): number {
@@ -42,13 +45,14 @@ export function CesiumView({
 	zoom2d,
 	onMarkerChange,
 	onDataQuality,
+	onViewerReady,
 }: CesiumViewProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const viewerRef = useRef<Cesium.Viewer | null>(null);
 	const fanPrimitivesRef = useRef<Cesium.PrimitiveCollection | null>(null);
 	const markerEntityRef = useRef<Cesium.Entity | null>(null);
-	const callbacksRef = useRef({ onMarkerChange, onDataQuality });
-	callbacksRef.current = { onMarkerChange, onDataQuality };
+	const callbacksRef = useRef({ onMarkerChange, onDataQuality, onViewerReady });
+	callbacksRef.current = { onMarkerChange, onDataQuality, onViewerReady };
 	const [ready, setReady] = useState(false);
 	const [terrainReady, setTerrainReady] = useState(false);
 
@@ -73,6 +77,8 @@ export function CesiumView({
 			selectionIndicator: false,
 			requestRenderMode: true,
 			maximumRenderTimeChange: Infinity,
+			// PNG-Export (FR11): Buffer muss nach dem Rendern lesbar bleiben
+			contextOptions: { webgl: { preserveDrawingBuffer: true } },
 			baseLayer: token
 				? undefined
 				: Cesium.ImageryLayer.fromProviderAsync(
@@ -86,7 +92,6 @@ export function CesiumView({
 			(window as unknown as { __sunraysViewer?: Cesium.Viewer }).__sunraysViewer = viewer;
 		}
 		viewer.scene.renderError.addEventListener((_scene, error) => {
-			 
 			console.error('Cesium renderError:', error instanceof Error ? error.message : error);
 		});
 		viewerRef.current = viewer;
@@ -116,23 +121,69 @@ export function CesiumView({
 			}
 		})();
 
+		// Position unter dem Cursor bestimmen (Terrain/Gebäude, sonst Ellipsoid)
+		const pickGround = (position: Cesium.Cartesian2): MarkerPosition | null => {
+			const cartesian =
+				viewer.scene.pickPosition(position) ??
+				viewer.camera.pickEllipsoid(position, viewer.scene.globe.ellipsoid);
+			if (!cartesian) return null;
+			const carto = Cesium.Cartographic.fromCartesian(cartesian);
+			return {
+				lat: Cesium.Math.toDegrees(carto.latitude),
+				lon: Cesium.Math.toDegrees(carto.longitude),
+			};
+		};
+		const picksMarker = (position: Cesium.Cartesian2): boolean => {
+			if (!markerEntityRef.current) return false;
+			const picked = viewer.scene.pick(position) as { id?: unknown } | undefined;
+			return picked?.id === markerEntityRef.current;
+		};
+
 		// Klick setzt den Marker neu (FR2 in 3D)
 		const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
-			const cartesian = viewer.scene.pickPosition(event.position);
-			const picked =
-				cartesian ?? viewer.camera.pickEllipsoid(event.position, viewer.scene.globe.ellipsoid);
-			if (!picked) return;
-			const carto = Cesium.Cartographic.fromCartesian(picked);
-			callbacksRef.current.onMarkerChange({
-				lat: Cesium.Math.toDegrees(carto.latitude),
-				lon: Cesium.Math.toDegrees(carto.longitude),
-			});
+			const pos = pickGround(event.position);
+			if (pos) callbacksRef.current.onMarkerChange(pos);
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+		// Drag & Drop des Markers (Follow-up zu Story 4.2): Während des Drags
+		// folgt nur die Marker-Entity dem Cursor; der Fächer wird — wie in 2D —
+		// erst beim Loslassen neu berechnet.
+		let dragging = false;
+		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+			if (!picksMarker(event.position)) return;
+			dragging = true;
+			viewer.scene.screenSpaceCameraController.enableInputs = false;
+			viewer.canvas.style.cursor = 'grabbing';
+		}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
+			if (dragging) {
+				const pos = pickGround(event.endPosition);
+				if (pos && markerEntityRef.current) {
+					markerEntityRef.current.position = new Cesium.ConstantPositionProperty(
+						Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat),
+					);
+					viewer.scene.requestRender();
+				}
+				return;
+			}
+			// Hover-Affordance: Greif-Cursor über dem Marker
+			viewer.canvas.style.cursor = picksMarker(event.endPosition) ? 'grab' : '';
+		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+			if (!dragging) return;
+			dragging = false;
+			viewer.scene.screenSpaceCameraController.enableInputs = true;
+			viewer.canvas.style.cursor = '';
+			const pos = pickGround(event.position);
+			if (pos) callbacksRef.current.onMarkerChange(pos);
+		}, Cesium.ScreenSpaceEventType.LEFT_UP);
+
 		setReady(true);
+		callbacksRef.current.onViewerReady?.(viewer);
 		return () => {
 			disposed = true;
+			callbacksRef.current.onViewerReady?.(null);
 			handler.destroy();
 			viewer.destroy();
 			viewerRef.current = null;
@@ -201,90 +252,94 @@ export function CesiumView({
 			build(2);
 		}
 
-		 
 		function buildFanAndMarker(groundHeight: number) {
-		if (!viewer || !marker || !path) return;
-		// Marker (snap-to-ground via clamped Point)
-		markerEntityRef.current = viewer.entities.add({
-			position: Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat),
-			point: {
-				pixelSize: 12,
-				color: Cesium.Color.fromCssColorString('#c9a24a'),
-				outlineColor: Cesium.Color.fromCssColorString('#0e1c2a'),
-				outlineWidth: 2,
-				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-				disableDepthTestDistance: Number.POSITIVE_INFINITY,
-			},
-		});
-
-		// Fächer: Vektoren mit echter Elevation (Story 4.3)
-		const primitives = new Cesium.PrimitiveCollection();
-		const polylines = new Cesium.PolylineCollection();
-		const labels = new Cesium.LabelCollection();
-		const origin = Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight);
-		const enu = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
-
-		const gold = Cesium.Color.fromCssColorString('#c9a24a');
-		const teal = Cesium.Color.fromCssColorString('#4ca2a8');
-
-		const addVector = (azimuthDeg: number, altitudeDeg: number, text: string, isEvent: boolean) => {
-			const az = Cesium.Math.toRadians(azimuthDeg);
-			const alt = Cesium.Math.toRadians(Math.max(altitudeDeg, 0));
-			const local = new Cesium.Cartesian3(
-				Math.sin(az) * Math.cos(alt) * FAN_LENGTH_METERS,
-				Math.cos(az) * Math.cos(alt) * FAN_LENGTH_METERS,
-				Math.sin(alt) * FAN_LENGTH_METERS,
-			);
-			const end = Cesium.Matrix4.multiplyByPoint(enu, local, new Cesium.Cartesian3());
-			polylines.add({
-				positions: [origin, end],
-				width: isEvent ? 3 : 2,
-				material: Cesium.Material.fromType('Color', {
-					color: isEvent ? teal : gold,
-				}),
+			if (!viewer || !marker || !path) return;
+			// Marker (snap-to-ground via clamped Point)
+			markerEntityRef.current = viewer.entities.add({
+				position: Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat),
+				point: {
+					pixelSize: 12,
+					color: Cesium.Color.fromCssColorString('#c9a24a'),
+					outlineColor: Cesium.Color.fromCssColorString('#0e1c2a'),
+					outlineWidth: 2,
+					heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+					disableDepthTestDistance: Number.POSITIVE_INFINITY,
+				},
 			});
-			labels.add({
-				position: end,
-				text,
-				font: `${isEvent ? '600 13px' : '500 13px'} system-ui`,
-				fillColor: isEvent ? teal : gold,
-				outlineColor: Cesium.Color.fromCssColorString('#0e1c2a'),
-				outlineWidth: 3,
-				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-				pixelOffset: new Cesium.Cartesian2(0, -12),
-				disableDepthTestDistance: Number.POSITIVE_INFINITY,
-			});
-		};
 
-		for (const h of path.hours) {
-			if (h.altitudeRefractedDeg <= 0) continue;
-			addVector(h.azimuthDeg, h.altitudeTrueDeg, String(h.localHour), false);
-		}
-		// Auf-/Untergang entlang des Horizonts
-		const eventAzimuth = (dec: number | null): number | null => {
-			if (dec === null) return null;
-			// nächste Stunde als Näherung für den Offset; Azimut exakt via Engine wäre
-			// identisch zur 2D-Logik — hier reicht die Stunde davor/danach nicht,
-			// deshalb interpolieren wir linear zwischen den Nachbarstunden.
-			const before = path.hours[Math.max(0, Math.floor(dec))];
-			const after = path.hours[Math.min(23, Math.ceil(dec))];
-			if (!before || !after) return null;
-			const f = dec - Math.floor(dec);
-			const a1 = before.azimuthDeg;
-			let a2 = after.azimuthDeg;
-			if (Math.abs(a2 - a1) > 180) a2 += a2 < a1 ? 360 : -360;
-			return (a1 + (a2 - a1) * f + 360) % 360;
-		};
-		const riseAz = eventAzimuth(path.sunRiseHours);
-		const setAz = eventAzimuth(path.sunSetHours);
-		if (riseAz !== null) addVector(riseAz, 0, '↑', true);
-		if (setAz !== null) addVector(setAz, 0, '↓', true);
+			// Fächer: Vektoren mit echter Elevation (Story 4.3)
+			const primitives = new Cesium.PrimitiveCollection();
+			const polylines = new Cesium.PolylineCollection();
+			const labels = new Cesium.LabelCollection();
+			const origin = Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight);
+			const enu = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
 
-		primitives.add(polylines);
-		primitives.add(labels);
-		viewer.scene.primitives.add(primitives);
-		fanPrimitivesRef.current = primitives;
-		viewer.scene.requestRender();
+			const gold = Cesium.Color.fromCssColorString('#c9a24a');
+			const teal = Cesium.Color.fromCssColorString('#4ca2a8');
+
+			const addVector = (
+				azimuthDeg: number,
+				altitudeDeg: number,
+				text: string,
+				isEvent: boolean,
+			) => {
+				const az = Cesium.Math.toRadians(azimuthDeg);
+				const alt = Cesium.Math.toRadians(Math.max(altitudeDeg, 0));
+				const local = new Cesium.Cartesian3(
+					Math.sin(az) * Math.cos(alt) * FAN_LENGTH_METERS,
+					Math.cos(az) * Math.cos(alt) * FAN_LENGTH_METERS,
+					Math.sin(alt) * FAN_LENGTH_METERS,
+				);
+				const end = Cesium.Matrix4.multiplyByPoint(enu, local, new Cesium.Cartesian3());
+				polylines.add({
+					positions: [origin, end],
+					width: isEvent ? 3 : 2,
+					material: Cesium.Material.fromType('Color', {
+						color: isEvent ? teal : gold,
+					}),
+				});
+				labels.add({
+					position: end,
+					text,
+					font: `${isEvent ? '600 13px' : '500 13px'} system-ui`,
+					fillColor: isEvent ? teal : gold,
+					outlineColor: Cesium.Color.fromCssColorString('#0e1c2a'),
+					outlineWidth: 3,
+					style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+					pixelOffset: new Cesium.Cartesian2(0, -12),
+					disableDepthTestDistance: Number.POSITIVE_INFINITY,
+				});
+			};
+
+			for (const h of path.hours) {
+				if (h.altitudeRefractedDeg <= 0) continue;
+				addVector(h.azimuthDeg, h.altitudeTrueDeg, String(h.localHour), false);
+			}
+			// Auf-/Untergang entlang des Horizonts
+			const eventAzimuth = (dec: number | null): number | null => {
+				if (dec === null) return null;
+				// nächste Stunde als Näherung für den Offset; Azimut exakt via Engine wäre
+				// identisch zur 2D-Logik — hier reicht die Stunde davor/danach nicht,
+				// deshalb interpolieren wir linear zwischen den Nachbarstunden.
+				const before = path.hours[Math.max(0, Math.floor(dec))];
+				const after = path.hours[Math.min(23, Math.ceil(dec))];
+				if (!before || !after) return null;
+				const f = dec - Math.floor(dec);
+				const a1 = before.azimuthDeg;
+				let a2 = after.azimuthDeg;
+				if (Math.abs(a2 - a1) > 180) a2 += a2 < a1 ? 360 : -360;
+				return (a1 + (a2 - a1) * f + 360) % 360;
+			};
+			const riseAz = eventAzimuth(path.sunRiseHours);
+			const setAz = eventAzimuth(path.sunSetHours);
+			if (riseAz !== null) addVector(riseAz, 0, '↑', true);
+			if (setAz !== null) addVector(setAz, 0, '↓', true);
+
+			primitives.add(polylines);
+			primitives.add(labels);
+			viewer.scene.primitives.add(primitives);
+			fanPrimitivesRef.current = primitives;
+			viewer.scene.requestRender();
 		}
 
 		return () => {

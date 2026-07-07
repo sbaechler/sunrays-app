@@ -1,5 +1,6 @@
 import { LocateButton } from '#/Map/LocateButton';
 import { MapView } from '#/Map/MapView';
+import { STREET_ZOOM } from '#/Map/mapStyle';
 import { markerAtom, viewModeAtom } from '#/Map/state';
 import { readUrlState, writeUrlState } from '#/Map/urlState';
 import { SearchBox } from '#/Search/SearchBox';
@@ -11,6 +12,7 @@ import { ShareControls } from '#/Sharing/ShareControls';
 import { DateControl } from '#/Sun/DateControl';
 import { SunFanOverlay } from '#/Sun/SunFanOverlay';
 import { dateAtom, formatHours, sunStateAtom } from '#/Sun/state';
+import type { Viewer as CesiumViewer } from 'cesium';
 import { useAtom, useAtomValue } from 'jotai';
 import type maplibregl from 'maplibre-gl';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
@@ -40,6 +42,7 @@ export default function Index() {
 	const locale = useAtomValue(localeAtom);
 	const [hydratedFromUrl, setHydratedFromUrl] = useState(false);
 	const [map, setMap] = useState<maplibregl.Map | null>(null);
+	const [viewer, setViewer] = useState<CesiumViewer | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
 	const [zoom2d, setZoom2d] = useState<number | null>(null);
 	const [dataQuality, setDataQuality] = useState<'full' | 'degraded' | null>(null);
@@ -118,6 +121,7 @@ export default function Index() {
 						zoom2d={zoom2d ?? zoomRef.current}
 						onMarkerChange={handleMarkerChange}
 						onDataQuality={setDataQuality}
+						onViewerReady={setViewer}
 					/>
 				</Suspense>
 			) : null}
@@ -157,7 +161,7 @@ export default function Index() {
 				<SearchBox
 					onSelect={r => {
 						handleMarkerChange({ lat: r.lat, lon: r.lon });
-						map?.flyTo({ center: [r.lon, r.lat], zoom: Math.max(map.getZoom(), 13) });
+						map?.flyTo({ center: [r.lon, r.lat], zoom: Math.max(map.getZoom(), STREET_ZOOM) });
 					}}
 				/>
 			</div>
@@ -189,7 +193,7 @@ export default function Index() {
 				<LocateButton
 					onLocate={pos => {
 						handleMarkerChange(pos);
-						map?.flyTo({ center: [pos.lon, pos.lat], zoom: Math.max(map.getZoom(), 15) });
+						map?.flyTo({ center: [pos.lon, pos.lat], zoom: Math.max(map.getZoom(), STREET_ZOOM) });
 					}}
 					onError={message => {
 						setNotice(message);
@@ -213,7 +217,14 @@ export default function Index() {
 
 			{/* Export & Sharing (Epic 5) */}
 			<div className="absolute bottom-4 right-4 z-10 max-sm:bottom-40">
-				<ShareControls map={map} marker={marker} sun={sun} />
+				<ShareControls
+					viewMode={viewMode}
+					map={map}
+					viewer={viewer}
+					dataQuality={dataQuality}
+					marker={marker}
+					sun={sun}
+				/>
 			</div>
 
 			{/* Datum & Tagesdaten (Story 3.3/3.4) */}

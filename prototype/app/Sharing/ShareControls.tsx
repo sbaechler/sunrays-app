@@ -1,51 +1,77 @@
 /**
  * Export & Sharing (Epic 5): PNG- und SVG-Export sowie Share-Link (FR11–FR13).
  * Aktiv, sobald ein Marker gesetzt und der Sonnenverlauf berechnet ist.
+ * PNG exportiert die jeweils aktive Ansicht (2D-Karte oder 3D-Szene).
  */
 import type { MarkerPosition } from '#/Map/state';
 import { localeAtom, t } from '#/Settings/i18n';
 import { trackEvent } from '#/Settings/telemetry';
 import { buildPngBlob } from '#/Sharing/exportPng';
-import { downloadBlob, exportFilename } from '#/Sharing/exportShared';
+import { buildPng3dBlob } from '#/Sharing/exportPng3d';
+import {
+	downloadBlob,
+	exportFilename,
+	SCENE3D_ATTRIBUTION,
+	SCENE3D_FALLBACK_ATTRIBUTION,
+} from '#/Sharing/exportShared';
 import { buildFanSvg } from '#/Sharing/exportSvg';
 import type { SunStateResult } from '#/Sun/state';
+import type { Viewer } from 'cesium';
 import { useAtomValue } from 'jotai';
 import { Check, Download, Link as LinkIcon } from 'lucide-react';
 import type maplibregl from 'maplibre-gl';
 import { useState } from 'react';
 
 export interface ShareControlsProps {
+	viewMode: '2d' | '3d';
 	map: maplibregl.Map | null;
+	viewer: Viewer | null;
+	/** FR10: bestimmt die Attribution des 3D-Exports (ion vs. Fallback). */
+	dataQuality: 'full' | 'degraded' | null;
 	marker: MarkerPosition | null;
 	sun: SunStateResult;
 }
 
-export function ShareControls({ map, marker, sun }: ShareControlsProps) {
+export function ShareControls({
+	viewMode,
+	map,
+	viewer,
+	dataQuality,
+	marker,
+	sun,
+}: ShareControlsProps) {
 	const locale = useAtomValue(localeAtom);
 	const [copied, setCopied] = useState(false);
 	const [busy, setBusy] = useState(false);
-	const ready = sun.status === 'ready' && marker !== null;
+	const viewReady = viewMode === '2d' ? map !== null : viewer !== null;
+	const ready = sun.status === 'ready' && marker !== null && viewReady;
 
 	const exportPng = async () => {
-		if (!ready || !map || sun.status !== 'ready') return;
+		if (!ready || sun.status !== 'ready' || !marker) return;
 		setBusy(true);
 		try {
-			const blob = await buildPngBlob({
-				map,
-				marker: marker,
-				path: sun.path,
-				date: sun.date,
-				timeZone: sun.timeZone,
-			});
+			const common = { marker, path: sun.path, date: sun.date, timeZone: sun.timeZone };
+			const blob =
+				viewMode === '3d' && viewer
+					? await buildPng3dBlob({
+							viewer,
+							...common,
+							attribution:
+								dataQuality === 'full' ? SCENE3D_ATTRIBUTION : SCENE3D_FALLBACK_ATTRIBUTION,
+						})
+					: map
+						? await buildPngBlob({ map, ...common })
+						: null;
+			if (!blob) return;
 			downloadBlob(blob, exportFilename('png', sun.date, marker.lat, marker.lon));
-			trackEvent('export_png');
+			trackEvent('export_png', { view: viewMode });
 		} finally {
 			setBusy(false);
 		}
 	};
 
 	const exportSvg = () => {
-		if (!ready || sun.status !== 'ready') return;
+		if (sun.status !== 'ready' || marker === null) return;
 		const svg = buildFanSvg({
 			path: sun.path,
 			latitude: sun.latitude,
@@ -84,7 +110,7 @@ export function ShareControls({ map, marker, sun }: ShareControlsProps) {
 			<button
 				type="button"
 				onClick={exportSvg}
-				disabled={!ready}
+				disabled={sun.status !== 'ready' || marker === null}
 				className={buttonClass + ' border-l border-border'}
 				aria-label={t(locale, 'exportSvgLabel')}
 			>

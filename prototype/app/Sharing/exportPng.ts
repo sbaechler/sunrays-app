@@ -4,7 +4,13 @@
  * Attribution (Lizenzpflicht der Tile-Quelle).
  */
 import type { MarkerPosition } from '#/Map/state';
-import { MAP_ATTRIBUTION, resolveThemeColors } from '#/Sharing/exportShared';
+import {
+	canvasToPngBlob,
+	drawLegend,
+	LEGEND_HEIGHT,
+	MAP_ATTRIBUTION,
+	resolveThemeColors,
+} from '#/Sharing/exportShared';
 import { buildFanVectors } from '#/Sun/fanGeometry';
 import { formatHours } from '#/Sun/state';
 import { computeSunPosition, type SunPath } from '@repo/solar';
@@ -12,7 +18,6 @@ import type maplibregl from 'maplibre-gl';
 
 const FAN_RADIUS = 120;
 const LABEL_RADIUS = FAN_RADIUS + 16;
-const LEGEND_HEIGHT = 56;
 
 export interface PngExportInput {
 	map: maplibregl.Map;
@@ -110,32 +115,16 @@ export async function buildPngBlob(input: PngExportInput): Promise<Blob> {
 	ctx.restore();
 
 	// Legende (unterhalb der Karte)
-	const legendTop = mapCanvas.clientHeight;
-	ctx.fillStyle = colors.card;
-	ctx.fillRect(0, legendTop, mapCanvas.clientWidth, LEGEND_HEIGHT);
-	ctx.fillStyle = colors.foreground;
-	ctx.textAlign = 'left';
-	ctx.font = '600 13px system-ui, sans-serif';
-	ctx.fillText(
-		`Sunrays · ${marker.lat.toFixed(5)}, ${marker.lon.toFixed(5)} · ${day}.${month}.${year} (${timeZone})`,
-		12,
-		legendTop + 18,
-	);
-	ctx.font = '400 12px system-ui, sans-serif';
-	ctx.fillText(
-		`Aufgang ${formatHours(path.sunRiseHours)} · Kulmination ${formatHours(path.sunTransitHours)} · Untergang ${formatHours(path.sunSetHours)}`,
-		12,
-		legendTop + 38,
-	);
-	ctx.fillStyle = colors.mutedForeground;
-	ctx.textAlign = 'right';
-	ctx.font = '400 10px system-ui, sans-serif';
-	ctx.fillText(MAP_ATTRIBUTION, mapCanvas.clientWidth - 12, legendTop + 38);
-
-	return new Promise<Blob>((resolve, reject) => {
-		canvas.toBlob(blob => {
-			if (blob) resolve(blob);
-			else reject(new Error('PNG-Erzeugung fehlgeschlagen'));
-		}, 'image/png');
+	drawLegend(ctx, mapCanvas.clientWidth, mapCanvas.clientHeight, colors, {
+		lat: marker.lat,
+		lon: marker.lon,
+		dateLabel: `${day}.${month}.${year}`,
+		timeZone,
+		rise: formatHours(path.sunRiseHours),
+		transit: formatHours(path.sunTransitHours),
+		set: formatHours(path.sunSetHours),
+		attribution: MAP_ATTRIBUTION,
 	});
+
+	return canvasToPngBlob(canvas);
 }

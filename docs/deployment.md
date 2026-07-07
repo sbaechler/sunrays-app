@@ -44,5 +44,9 @@ Streaming-Volumen einer Session gegen die 15-GB-Quote messen, PNG-Export der 3D-
 - Story 4.1 Go/No-Go: **GO** (2026-07-07, mit ion-Token verifiziert — Terrain, Buildings,
   Fächer auf Geländehöhe, 2D/3D-Wechsel). Der Token-lose NaturalEarthII-Fallback rendert im
   Headless-Browser keinen Globus — auf echter Hardware gegenprüfen (niedrige Priorität).
-- PNG-Export exportiert die 2D-Ansicht; 3D-Screenshot ist Follow-up (preserveDrawingBuffer).
-- Marker in 3D: Klick-Platzierung; Drag ist Follow-up.
+- ~~PNG-Export exportiert die 2D-Ansicht; 3D-Screenshot ist Follow-up~~ — erledigt (2026-07-07):
+  PNG exportiert die jeweils aktive Ansicht, in 3D via preserveDrawingBuffer + Legende/Attribution.
+- ~~Marker in 3D: Klick-Platzierung; Drag ist Follow-up~~ — erledigt (2026-07-07): Drag auf dem
+  Marker verschiebt ihn (Kamera-Inputs pausiert, Commit beim Loslassen wie in 2D).
+- Karten-Style (2D) wird beim Laden entsättigt (`MAP_SATURATION` in `app/Map/mapStyle.ts`),
+  damit sich der Fächer abhebt; Start-Zoom ist Strassen-Niveau (`STREET_ZOOM`).
