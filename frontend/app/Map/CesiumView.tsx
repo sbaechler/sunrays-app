@@ -11,6 +11,12 @@
  * Der Fächer (Story 4.3) wird als Polylines + Labels am Marker gerendert;
  * Elevation = tatsächlicher Sonnenstand. Klick setzt den Marker neu (FR2),
  * Drag auf dem Marker verschiebt ihn (Kamera-Inputs währenddessen pausiert).
+ *
+ * Vertikaler Versatz: ⌘+Drag auf dem Marker hebt/senkt ihn (z. B. aufs Dach);
+ * eine dünne Lotlinie visualisiert die Höhe über Grund. ⌘+Doppelklick setzt
+ * ihn auf Geländehöhe zurück. ⌘ statt Ctrl, weil Cesium Ctrl für die Kamera
+ * belegt (Cesiums KeyboardEventModifier kennt kein Meta — daher eigenes
+ * Tracking über keydown/keyup).
  */
 import type { MarkerPosition } from '#/Map/state';
 import { trackEvent } from '#/Settings/telemetry';
@@ -20,6 +26,10 @@ import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { useEffect, useRef, useState } from 'react';
 
 const FAN_LENGTH_METERS = 250;
+/** Grenzen für den vertikalen Marker-Versatz (⌘+Drag) in Metern. */
+const MAX_HEIGHT_OFFSET = 1000;
+/** Unterhalb dieser Höhe schnappt der Marker zurück auf den Boden. */
+const SNAP_TO_GROUND_METERS = 0.5;
 
 export interface CesiumViewProps {
 	marker: MarkerPosition | null;
@@ -51,6 +61,11 @@ export function CesiumView({
 	const viewerRef = useRef<Cesium.Viewer | null>(null);
 	const fanPrimitivesRef = useRef<Cesium.PrimitiveCollection | null>(null);
 	const markerEntityRef = useRef<Cesium.Entity | null>(null);
+	const heightLineEntityRef = useRef<Cesium.Entity | null>(null);
+	/** Zuletzt gesampelte Geländehöhe am Marker (für den vertikalen Drag). */
+	const groundHeightRef = useRef(0);
+	const markerRef = useRef(marker);
+	markerRef.current = marker;
 	const callbacksRef = useRef({ onMarkerChange, onDataQuality, onViewerReady });
 	callbacksRef.current = { onMarkerChange, onDataQuality, onViewerReady };
 	const [ready, setReady] = useState(false);
@@ -139,29 +154,123 @@ export function CesiumView({
 			return picked?.id === markerEntityRef.current;
 		};
 
-		// Klick setzt den Marker neu (FR2 in 3D)
+		// ⌘-Status selbst verfolgen: Cesiums KeyboardEventModifier kennt nur
+		// Shift/Ctrl/Alt, Meta löst deshalb die unmodifizierten Handler aus.
+		let metaDown = false;
+		const onMetaKey = (e: KeyboardEvent) => {
+			if (e.key === 'Meta') metaDown = e.type === 'keydown';
+		};
+		const onWindowBlur = () => {
+			metaDown = false;
+		};
+		window.addEventListener('keydown', onMetaKey);
+		window.addEventListener('keyup', onMetaKey);
+		window.addEventListener('blur', onWindowBlur);
+
+		// Aktuelle Marker-Weltposition (inkl. vertikalem Versatz)
+		const markerWorldPosition = (): Cesium.Cartesian3 | null => {
+			const m = markerRef.current;
+			if (!m) return null;
+			return Cesium.Cartesian3.fromDegrees(
+				m.lon,
+				m.lat,
+				groundHeightRef.current + (m.heightOffset ?? 0),
+			);
+		};
+
+		// Klick setzt den Marker neu (FR2 in 3D); mit ⌘ ist der Klick für den
+		// vertikalen Modus reserviert und verschiebt nichts.
 		const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+			if (metaDown) return;
 			const pos = pickGround(event.position);
 			if (pos) callbacksRef.current.onMarkerChange(pos);
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 		// Drag & Drop des Markers (Follow-up zu Story 4.2): Während des Drags
 		// folgt nur die Marker-Entity dem Cursor; der Fächer wird — wie in 2D —
-		// erst beim Loslassen neu berechnet.
+		// erst beim Loslassen neu berechnet. Mit gehaltenem ⌘ wird stattdessen
+		// vertikal gezogen (Höhe über Grund).
 		let dragging = false;
+		let verticalDrag: { startY: number; startOffset: number; metersPerPixel: number } | null =
+			null;
+		let verticalDragOffset = 0;
+
+		const applyVerticalOffset = (offset: number) => {
+			const m = markerRef.current;
+			const entity = markerEntityRef.current;
+			if (!m || !entity) return;
+			verticalDragOffset = offset;
+			const ground = groundHeightRef.current;
+			const top = Cesium.Cartesian3.fromDegrees(m.lon, m.lat, ground + offset);
+			entity.position = new Cesium.ConstantPositionProperty(top);
+			if (entity.point) {
+				entity.point.heightReference = new Cesium.ConstantProperty(
+					offset > 0 ? Cesium.HeightReference.NONE : Cesium.HeightReference.CLAMP_TO_GROUND,
+				);
+			}
+			const line = heightLineEntityRef.current;
+			if (line) {
+				line.show = offset > 0;
+				if (line.polyline) {
+					line.polyline.positions = new Cesium.ConstantProperty([
+						Cesium.Cartesian3.fromDegrees(m.lon, m.lat, ground),
+						top,
+					]);
+				}
+			}
+			viewer.scene.requestRender();
+		};
+
 		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
 			if (!picksMarker(event.position)) return;
-			dragging = true;
 			viewer.scene.screenSpaceCameraController.enableInputs = false;
+			if (metaDown) {
+				// Pixel→Meter am Marker: Frustum-Höhe in Marker-Distanz / Canvas-Höhe
+				const world = markerWorldPosition();
+				const frustum = viewer.camera.frustum;
+				const fovy =
+					frustum instanceof Cesium.PerspectiveFrustum ? (frustum.fovy ?? 1) : 1;
+				const distance = world
+					? Cesium.Cartesian3.distance(viewer.camera.position, world)
+					: 1000;
+				verticalDrag = {
+					startY: event.position.y,
+					startOffset: markerRef.current?.heightOffset ?? 0,
+					metersPerPixel:
+						(2 * distance * Math.tan(fovy / 2)) / Math.max(1, viewer.canvas.clientHeight),
+				};
+				verticalDragOffset = verticalDrag.startOffset;
+				viewer.canvas.style.cursor = 'ns-resize';
+				return;
+			}
+			dragging = true;
 			viewer.canvas.style.cursor = 'grabbing';
 		}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
+			if (verticalDrag) {
+				const raw =
+					verticalDrag.startOffset +
+					(verticalDrag.startY - event.endPosition.y) * verticalDrag.metersPerPixel;
+				const offset =
+					raw < SNAP_TO_GROUND_METERS ? 0 : Math.min(raw, MAX_HEIGHT_OFFSET);
+				applyVerticalOffset(offset);
+				return;
+			}
 			if (dragging) {
 				const pos = pickGround(event.endPosition);
 				if (pos && markerEntityRef.current) {
+					// Höhe über Grund näherungsweise beibehalten; die exakte
+					// Geländehöhe wird beim Loslassen neu gesampelt.
+					const offset = markerRef.current?.heightOffset ?? 0;
 					markerEntityRef.current.position = new Cesium.ConstantPositionProperty(
-						Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat),
+						offset > 0
+							? Cesium.Cartesian3.fromDegrees(
+									pos.lon,
+									pos.lat,
+									groundHeightRef.current + offset,
+								)
+							: Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat),
 					);
 					viewer.scene.requestRender();
 				}
@@ -171,24 +280,60 @@ export function CesiumView({
 			viewer.canvas.style.cursor = picksMarker(event.endPosition) ? 'grab' : '';
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+			if (verticalDrag) {
+				const changed = verticalDragOffset !== verticalDrag.startOffset;
+				verticalDrag = null;
+				viewer.scene.screenSpaceCameraController.enableInputs = true;
+				viewer.canvas.style.cursor = '';
+				const m = markerRef.current;
+				// Unverändert (z. B. ⌘+Klick ohne Bewegung): nichts committen,
+				// sonst zerstört der Rebuild die Entity vor einem ⌘+Doppelklick.
+				if (m && changed) {
+					callbacksRef.current.onMarkerChange({
+						lat: m.lat,
+						lon: m.lon,
+						...(verticalDragOffset > 0
+							? { heightOffset: Math.round(verticalDragOffset * 10) / 10 }
+							: {}),
+					});
+				}
+				return;
+			}
 			if (!dragging) return;
 			dragging = false;
 			viewer.scene.screenSpaceCameraController.enableInputs = true;
 			viewer.canvas.style.cursor = '';
 			const pos = pickGround(event.position);
-			if (pos) callbacksRef.current.onMarkerChange(pos);
+			if (pos) {
+				const offset = markerRef.current?.heightOffset;
+				callbacksRef.current.onMarkerChange(
+					offset && offset > 0 ? { ...pos, heightOffset: offset } : pos,
+				);
+			}
 		}, Cesium.ScreenSpaceEventType.LEFT_UP);
+
+		// ⌘+Doppelklick auf den Marker: zurück auf Geländehöhe
+		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+			if (!metaDown) return;
+			const m = markerRef.current;
+			if (!m?.heightOffset || !picksMarker(event.position)) return;
+			callbacksRef.current.onMarkerChange({ lat: m.lat, lon: m.lon });
+		}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
 		setReady(true);
 		callbacksRef.current.onViewerReady?.(viewer);
 		return () => {
 			disposed = true;
+			window.removeEventListener('keydown', onMetaKey);
+			window.removeEventListener('keyup', onMetaKey);
+			window.removeEventListener('blur', onWindowBlur);
 			callbacksRef.current.onViewerReady?.(null);
 			handler.destroy();
 			viewer.destroy();
 			viewerRef.current = null;
 			fanPrimitivesRef.current = null;
 			markerEntityRef.current = null;
+			heightLineEntityRef.current = null;
 		};
 	}, []);
 
@@ -226,6 +371,10 @@ export function CesiumView({
 			viewer.entities.remove(markerEntityRef.current);
 			markerEntityRef.current = null;
 		}
+		if (heightLineEntityRef.current) {
+			viewer.entities.remove(heightLineEntityRef.current);
+			heightLineEntityRef.current = null;
+		}
 		if (fanPrimitivesRef.current) {
 			viewer.scene.primitives.remove(fanPrimitivesRef.current);
 			fanPrimitivesRef.current = null;
@@ -239,6 +388,7 @@ export function CesiumView({
 		let cancelled = false;
 		const build = (groundHeight: number) => {
 			if (cancelled) return;
+			groundHeightRef.current = groundHeight;
 			buildFanAndMarker(groundHeight);
 		};
 		const terrain = viewer.terrainProvider;
@@ -246,36 +396,68 @@ export function CesiumView({
 			void Cesium.sampleTerrainMostDetailed(terrain, [
 				Cesium.Cartographic.fromDegrees(marker.lon, marker.lat),
 			])
-				.then(([pos]) => build((pos?.height ?? 0) + 2))
-				.catch(() => build(2));
+				.then(([pos]) => build(pos?.height ?? 0))
+				.catch(() => build(0));
 		} else {
-			build(2);
+			build(0);
 		}
 
 		function buildFanAndMarker(groundHeight: number) {
 			if (!viewer || !marker || !path) return;
-			// Marker (snap-to-ground via clamped Point)
+			const heightOffset = marker.heightOffset ?? 0;
+			const gold = Cesium.Color.fromCssColorString('#c9a24a');
+			const teal = Cesium.Color.fromCssColorString('#4ca2a8');
+
+			// Marker: auf dem Boden geklemmt, mit vertikalem Versatz absolut
 			markerEntityRef.current = viewer.entities.add({
-				position: Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat),
+				position:
+					heightOffset > 0
+						? Cesium.Cartesian3.fromDegrees(
+								marker.lon,
+								marker.lat,
+								groundHeight + heightOffset,
+							)
+						: Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat),
 				point: {
 					pixelSize: 12,
-					color: Cesium.Color.fromCssColorString('#c9a24a'),
+					color: gold,
 					outlineColor: Cesium.Color.fromCssColorString('#0e1c2a'),
 					outlineWidth: 2,
-					heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+					heightReference:
+						heightOffset > 0
+							? Cesium.HeightReference.NONE
+							: Cesium.HeightReference.CLAMP_TO_GROUND,
 					disableDepthTestDistance: Number.POSITIVE_INFINITY,
 				},
 			});
 
-			// Fächer: Vektoren mit echter Elevation (Story 4.3)
+			// Lotlinie Marker→Boden: macht die Höhe über Grund ablesbar
+			heightLineEntityRef.current = viewer.entities.add({
+				show: heightOffset > 0,
+				polyline: {
+					positions: [
+						Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight),
+						Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight + heightOffset),
+					],
+					width: 1.5,
+					material: new Cesium.PolylineDashMaterialProperty({
+						color: gold.withAlpha(0.85),
+						dashLength: 10,
+					}),
+				},
+			});
+
+			// Fächer: Vektoren mit echter Elevation (Story 4.3); Ursprung folgt
+			// dem vertikalen Versatz (Sicht z. B. vom Dach aus)
 			const primitives = new Cesium.PrimitiveCollection();
 			const polylines = new Cesium.PolylineCollection();
 			const labels = new Cesium.LabelCollection();
-			const origin = Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight);
+			const origin = Cesium.Cartesian3.fromDegrees(
+				marker.lon,
+				marker.lat,
+				groundHeight + heightOffset + 2,
+			);
 			const enu = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
-
-			const gold = Cesium.Color.fromCssColorString('#c9a24a');
-			const teal = Cesium.Color.fromCssColorString('#4ca2a8');
 
 			const addVector = (
 				azimuthDeg: number,

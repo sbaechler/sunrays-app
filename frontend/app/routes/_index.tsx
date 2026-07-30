@@ -1,7 +1,7 @@
 import { LocateButton } from '#/Map/LocateButton';
 import { MapView } from '#/Map/MapView';
 import { STREET_ZOOM } from '#/Map/mapStyle';
-import { markerAtom, viewModeAtom } from '#/Map/state';
+import { markerAtom, viewModeAtom, type MarkerPosition } from '#/Map/state';
 import { readUrlState, writeUrlState } from '#/Map/urlState';
 import { SearchBox } from '#/Search/SearchBox';
 import { LanguageToggle } from '#/Settings/LanguageToggle';
@@ -59,7 +59,7 @@ export default function Index() {
 	}, []);
 
 	const handleMarkerChange = useCallback(
-		(pos: { lat: number; lon: number }) => {
+		(pos: MarkerPosition) => {
 			setMarker(pos);
 			writeUrlState({ marker: pos });
 		},

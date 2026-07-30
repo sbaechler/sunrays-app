@@ -6,7 +6,10 @@
  */
 import { expect, test } from '@playwright/test';
 
-const ZURICH = '/?lat=47.3769&lon=8.5417&date=2026-07-07&view=2d';
+// Achtung: die URL-Parameter heissen `d` und `v` (siehe Map/urlState.ts) —
+// mit falschen Namen fällt die App still auf das heutige Datum zurück und
+// die fixen Erwartungswerte unten stimmen nur zufällig am Autorentag.
+const ZURICH = '/?lat=47.3769&lon=8.5417&d=2026-07-07&v=2d';
 
 test('zeigt Sonnenverlauf für Ort und Datum aus der URL', async ({ page }) => {
 	await page.goto(ZURICH);
