@@ -4,6 +4,11 @@ import { atom } from 'jotai';
 export interface MarkerPosition {
 	lat: number;
 	lon: number;
+	/**
+	 * Vertikaler Versatz in Metern über Grund (3D-Ansicht): erlaubt es, den
+	 * Marker z. B. auf ein Dach zu heben. Fehlend/0 = auf Geländehöhe.
+	 */
+	heightOffset?: number;
 }
 
 export const markerAtom = atom<MarkerPosition | null>(null);

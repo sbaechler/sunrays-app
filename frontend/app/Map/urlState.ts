@@ -1,7 +1,8 @@
 /**
  * URL-State (Vorarbeit FR13): Marker, Zoom und Ansicht sind in den
  * Query-Parametern kodiert, damit jede Ansicht als Link teilbar ist.
- * Format: ?lat=47.37690&lon=8.54170&z=14.5&v=2d
+ * Format: ?lat=47.37690&lon=8.54170&z=14.5&v=2d (optional: &h=12.5 für den
+ * vertikalen Marker-Versatz in Metern, 3D-Ansicht)
  */
 import type { MarkerPosition, ViewMode } from '#/Map/state';
 
@@ -19,10 +20,17 @@ export function readUrlState(search: string): UrlState {
 	const lon = Number(params.get('lon'));
 	const zoom = Number(params.get('z'));
 	const view = params.get('v');
+	const heightOffset = Number(params.get('h'));
 	return {
 		marker:
 			Number.isFinite(lat) && Number.isFinite(lon) && params.has('lat') && params.has('lon')
-				? { lat, lon }
+				? {
+						lat,
+						lon,
+						...(params.has('h') && Number.isFinite(heightOffset) && heightOffset > 0
+							? { heightOffset }
+							: {}),
+					}
 				: null,
 		zoom: Number.isFinite(zoom) && params.has('z') ? zoom : null,
 		view: view === '2d' || view === '3d' ? view : null,
@@ -42,9 +50,15 @@ export function writeUrlState(state: {
 		if (state.marker) {
 			params.set('lat', state.marker.lat.toFixed(5));
 			params.set('lon', state.marker.lon.toFixed(5));
+			if (state.marker.heightOffset && state.marker.heightOffset > 0) {
+				params.set('h', state.marker.heightOffset.toFixed(1));
+			} else {
+				params.delete('h');
+			}
 		} else {
 			params.delete('lat');
 			params.delete('lon');
+			params.delete('h');
 		}
 	}
 	if (state.zoom !== undefined) params.set('z', state.zoom.toFixed(2));
