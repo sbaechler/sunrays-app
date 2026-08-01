@@ -13,3 +13,4 @@ playwright-report/
 coverage/
 *.tsbuildinfo
 .eslintcache
+build/

@@ -202,6 +202,13 @@ export default function Index() {
 				/>
 				<LanguageToggle />
 				<ThemeToggle />
+				<a
+			href="https://github.com/sbaechler/sunrays-app/blob/main/docs/datenschutzerklaerung.md"
+			title="Datenschutzerklärung"
+			className="inline-flex size-10 items-center justify-center rounded-panel border border-border bg-card text-card-foreground shadow-sm transition-colors hover:bg-muted"
+		>
+			§
+		</a>
 			</div>
 
 			{notice && (
