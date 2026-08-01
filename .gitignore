@@ -3,10 +3,12 @@ dist/
 .turbo/
 frontend/build/
 .react-router/
+.wrangler/
 test-results/
 playwright-report/
 .env
 *.local
+.dev.vars*
 .DS_Store
 coverage/
 *.tsbuildinfo
