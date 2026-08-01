@@ -66,6 +66,14 @@ export function CesiumView({
 	const groundHeightRef = useRef(0);
 	const markerRef = useRef(marker);
 	markerRef.current = marker;
+	/**
+	 * Zuletzt aus der 3D-Ansicht selbst gemeldete Position (Klick/Drag).
+	 * Kommt dieselbe Position als Prop zurück, bewegt sich die Kamera nicht —
+	 * nur externe Änderungen (Suche, Geolocation) lösen einen Kameraflug aus.
+	 */
+	const internalPosRef = useRef<MarkerPosition | null>(null);
+	/** false, bis die Kamera zum ersten Mal auf einen Marker ausgerichtet wurde. */
+	const hasAimedRef = useRef(false);
 	const callbacksRef = useRef({ onMarkerChange, onDataQuality, onViewerReady });
 	callbacksRef.current = { onMarkerChange, onDataQuality, onViewerReady };
 	const [ready, setReady] = useState(false);
@@ -178,13 +186,21 @@ export function CesiumView({
 			);
 		};
 
+		// Marker-Änderung aus der 3D-Interaktion melden: die Position wird
+		// vermerkt, damit der Kamera-Effekt sie nicht als externe Änderung
+		// (Suche/Geolocation) interpretiert und die Kamera verschiebt.
+		const reportMarker = (pos: MarkerPosition) => {
+			internalPosRef.current = pos;
+			callbacksRef.current.onMarkerChange(pos);
+		};
+
 		// Klick setzt den Marker neu (FR2 in 3D); mit ⌘ ist der Klick für den
 		// vertikalen Modus reserviert und verschiebt nichts.
 		const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 		handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
 			if (metaDown) return;
 			const pos = pickGround(event.position);
-			if (pos) callbacksRef.current.onMarkerChange(pos);
+			if (pos) reportMarker(pos);
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 		// Drag & Drop des Markers (Follow-up zu Story 4.2): Während des Drags
@@ -289,7 +305,7 @@ export function CesiumView({
 				// Unverändert (z. B. ⌘+Klick ohne Bewegung): nichts committen,
 				// sonst zerstört der Rebuild die Entity vor einem ⌘+Doppelklick.
 				if (m && changed) {
-					callbacksRef.current.onMarkerChange({
+					reportMarker({
 						lat: m.lat,
 						lon: m.lon,
 						...(verticalDragOffset > 0
@@ -306,9 +322,7 @@ export function CesiumView({
 			const pos = pickGround(event.position);
 			if (pos) {
 				const offset = markerRef.current?.heightOffset;
-				callbacksRef.current.onMarkerChange(
-					offset && offset > 0 ? { ...pos, heightOffset: offset } : pos,
-				);
+				reportMarker(offset && offset > 0 ? { ...pos, heightOffset: offset } : pos);
 			}
 		}, Cesium.ScreenSpaceEventType.LEFT_UP);
 
@@ -317,7 +331,7 @@ export function CesiumView({
 			if (!metaDown) return;
 			const m = markerRef.current;
 			if (!m?.heightOffset || !picksMarker(event.position)) return;
-			callbacksRef.current.onMarkerChange({ lat: m.lat, lon: m.lon });
+			reportMarker({ lat: m.lat, lon: m.lon });
 		}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
 		setReady(true);
@@ -337,30 +351,58 @@ export function CesiumView({
 		};
 	}, []);
 
-	// Kamera beim ersten Marker ausrichten (Übersetzung aus 2D, FR9)
+	// Kamera auf den Marker ausrichten (Übersetzung aus 2D, FR9). Läuft beim
+	// ersten Marker (auch wenn er erst nach der Initialisierung gesetzt wird)
+	// und bei externen Ortswechseln (Suche/Geolocation) — Klick/Drag in der
+	// 3D-Ansicht selbst bewegt die Kamera nicht (siehe internalPosRef).
 	useEffect(() => {
 		const viewer = viewerRef.current;
 		if (!viewer || !ready || !marker) return;
+		const internal = internalPosRef.current;
+		internalPosRef.current = null;
+		const isInternal =
+			internal !== null &&
+			internal.lat === marker.lat &&
+			internal.lon === marker.lon &&
+			(internal.heightOffset ?? 0) === (marker.heightOffset ?? 0);
+		if (isInternal && hasAimedRef.current) return;
+		const firstAim = !hasAimedRef.current;
+		hasAimedRef.current = true;
+
+		let cancelled = false;
 		const height = zoomToHeight(zoom2d);
 		const aim = (groundHeight: number) => {
-			viewer.camera.lookAt(
-				Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight),
-				new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-40), height),
+			if (cancelled) return;
+			viewer.camera.flyToBoundingSphere(
+				new Cesium.BoundingSphere(
+					Cesium.Cartesian3.fromDegrees(marker.lon, marker.lat, groundHeight),
+					1,
+				),
+				{
+					offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-40), height),
+					duration: firstAim ? 0 : 1.2,
+				},
 			);
-			viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 			viewer.scene.requestRender();
 		};
-		aim(0);
 		const terrain = viewer.terrainProvider;
-		if (terrain && !(terrain instanceof Cesium.EllipsoidTerrainProvider)) {
-			// Ziel auf Geländehöhe korrigieren, sobald Terrain-Daten da sind
+		const hasTerrain = terrain && !(terrain instanceof Cesium.EllipsoidTerrainProvider);
+		// Initial sofort grob ausrichten (kein leerer Frame); animierte Flüge
+		// warten auf die Geländehöhe, damit der Flug nicht neu startet.
+		if (firstAim || !hasTerrain) aim(0);
+		if (hasTerrain) {
 			void Cesium.sampleTerrainMostDetailed(terrain, [
 				Cesium.Cartographic.fromDegrees(marker.lon, marker.lat),
 			])
 				.then(([pos]) => aim(pos?.height ?? 0))
-				.catch(() => undefined);
+				.catch(() => {
+					if (!firstAim) aim(0);
+				});
 		}
-	}, [ready, terrainReady]);
+		return () => {
+			cancelled = true;
+		};
+	}, [ready, terrainReady, marker?.lat, marker?.lon, marker?.heightOffset]);
 
 	// Marker + Fächer synchron halten (FR6: sofortige Aktualisierung)
 	useEffect(() => {
