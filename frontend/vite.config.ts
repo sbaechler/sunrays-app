@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
 		// Cesium lädt Worker/Assets relativ zu dieser Basis (aus public/cesium)
 		CESIUM_BASE_URL: JSON.stringify('/cesium'),
 	},
-	plugins: [reactRouter(), tailwindcss(), cloudflare()],
+	plugins: [reactRouter(), tailwindcss(), cloudflare({ configPath: '../wrangler.jsonc' })],
 	resolve: {
 		preserveSymlinks: false,
 		tsconfigPaths: true,
