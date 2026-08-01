@@ -216,7 +216,7 @@ export default function Index() {
 			)}
 
 			{/* Export & Sharing (Epic 5) */}
-			<div className="absolute bottom-4 right-4 z-10 max-sm:bottom-40">
+			<div className="absolute bottom-4 right-12 z-10 max-sm:bottom-40">
 				<ShareControls
 					viewMode={viewMode}
 					map={map}
