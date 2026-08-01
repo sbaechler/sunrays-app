@@ -3,6 +3,8 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 
 // `.env` lives at the monorepo root, not inside this workspace.
 const envDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -13,7 +15,7 @@ export default defineConfig(({ mode }) => ({
 		// Cesium lädt Worker/Assets relativ zu dieser Basis (aus public/cesium)
 		CESIUM_BASE_URL: JSON.stringify('/cesium'),
 	},
-	plugins: [reactRouter(), tailwindcss()],
+	plugins: [reactRouter(), tailwindcss(), cloudflare()],
 	resolve: {
 		preserveSymlinks: false,
 		tsconfigPaths: true,

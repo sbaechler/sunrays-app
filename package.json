@@ -11,16 +11,19 @@
     "typecheck": "turbo run typecheck",
     "upgrade": "npx npm-check-updates --interactive --format group -c 2",
     "clean": "rimraf .turbo && turbo run clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "deploy": "turbo build && wrangler deploy"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.50.0",
     "eslint-plugin-import": "^2.32.0",
     "prettier": "^3.9.6",
     "prettier-plugin-organize-imports": "^4.3.0",
     "turbo": "^2.10.7",
     "typescript": "^6.0.3",
     "vite": "^8.1.5",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "wrangler": "^4.118.0"
   },
   "engines": {
     "node": ">=22"
@@ -36,7 +39,6 @@
     "ui",
     "packages/solar"
   ],
-  "dependencies": {},
   "overrides": {
     "zod-validation-error": "^4.0.2"
   }

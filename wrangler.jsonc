@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sunrays",
+  "compatibility_date": "2026-04-09",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "./frontend/build/client",
+    "not_found_handling": "single-page-application"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+	"build": {
+		"command": "npm run build",
+		"cwd": "build_cwd",
+		"watch_dir": "build_watch_dir"
+	}
+}
+}
