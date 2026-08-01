@@ -60,6 +60,11 @@ export function MapView({
 				center: marker ? [marker.lon, marker.lat] : DEFAULT_CENTER,
 				zoom: initialZoom ?? STREET_ZOOM,
 				attributionControl: { compact: false },
+				// 2D-Ansicht: Kippen der Kamera sperren (Ctrl+Drag / Touch-Pitch),
+				// der Fächer ist Screen-space und folgt nur dem Bearing, nicht dem Pitch
+				maxPitch: 0,
+				pitchWithRotate: false,
+				touchPitch: false,
 				// PNG-Export (Story 5.1): Canvas muss nach dem Rendern lesbar bleiben
 				canvasContextAttributes: { preserveDrawingBuffer: true },
 			});
