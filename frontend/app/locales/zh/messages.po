@@ -1,0 +1,154 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-08-02 22:40+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: zh\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: app/routes/_index.tsx
+msgid "3D-Ansicht lädt …"
+msgstr "正在加载 3D 视图…"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Aktuelle Ansicht als PNG exportieren"
+msgstr "将当前视图导出为 PNG"
+
+#: app/Map/LocateButton.tsx
+msgid "Aktuelle Position übernehmen"
+msgstr "使用当前位置"
+
+#: app/routes/_index.tsx
+msgid "Ansicht wählen"
+msgstr "选择视图"
+
+#: app/routes/_index.tsx
+msgid "Berechnung derzeit nur bis ±65° Breite möglich."
+msgstr "目前仅支持 ±65° 纬度范围内的计算。"
+
+#: app/Sun/DateControl.tsx
+msgid "Datum"
+msgstr "日期"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Fächer als SVG exportieren"
+msgstr "将日照扇面导出为 SVG"
+
+#: app/Sun/DateControl.tsx
+msgid "Frühling (20.3.)"
+msgstr "春分（3月20日）"
+
+#: app/Sun/DateControl.tsx
+msgid "Herbst (23.9.)"
+msgstr "秋分（9月23日）"
+
+#: app/routes/_index.tsx
+msgid "Hochwertige 3D-Daten sind nicht verfügbar (Terrain/Gebäude). Die 2D-Ansicht ist der verlässliche Fallback."
+msgstr "高质量 3D 数据（地形/建筑）不可用。2D 视图是可靠的备选方案。"
+
+#: app/Sun/DateControl.tsx
+msgid "Jahreszeit …"
+msgstr "季节…"
+
+#: app/Sun/DateControl.tsx
+msgid "Jahreszeit wählen"
+msgstr "选择季节"
+
+#: app/Search/SearchBox.tsx
+msgid "Keine Treffer"
+msgstr "无结果"
+
+#: app/routes/_index.tsx
+msgid "Klicke auf die Karte, um das Motiv zu markieren"
+msgstr "点击地图标记拍摄对象"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Kopiert"
+msgstr "已复制"
+
+#: app/routes/_index.tsx
+msgid "Kulmination"
+msgstr "中天"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Link"
+msgstr "链接"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Link zu dieser Ansicht kopieren"
+msgstr "复制此视图的链接"
+
+#: app/Sun/DateControl.tsx
+msgid "Nächster Tag"
+msgstr "后一天"
+
+#: app/Search/SearchBox.tsx
+msgid "Ort suchen"
+msgstr "搜索地点"
+
+#: app/Search/SearchBox.tsx
+msgid "Ort suchen …"
+msgstr "搜索地点…"
+
+#: app/routes/_index.tsx
+msgid "Rechtliches: Datenschutz und Nutzungsbedingungen"
+msgstr "法律信息：隐私政策与使用条款"
+
+#: app/Sun/DateControl.tsx
+msgid "Sommer (21.6.)"
+msgstr "夏至（6月21日）"
+
+#: app/Settings/LanguageToggle.tsx
+msgid "Sprache wählen"
+msgstr "选择语言"
+
+#: app/Settings/LanguageToggle.tsx
+msgid "Sprache wechseln"
+msgstr "切换语言"
+
+#: app/Map/LocateButton.tsx
+msgid "Standort konnte nicht bestimmt werden – nutze die Ortssuche."
+msgstr "无法确定您的位置——请使用搜索。"
+
+#: app/Map/LocateButton.tsx
+msgid "Standortbestimmung wird von diesem Browser nicht unterstützt."
+msgstr "此浏览器不支持定位。"
+
+#: app/Map/LocateButton.tsx
+msgid "Standortzugriff verweigert – nutze die Ortssuche."
+msgstr "定位权限被拒绝——请使用搜索。"
+
+#: app/Search/SearchBox.tsx
+msgid "Suche …"
+msgstr "搜索中…"
+
+#: app/Search/SearchBox.tsx
+msgid "Suche derzeit nicht erreichbar – bitte später erneut versuchen"
+msgstr "搜索暂时不可用——请稍后再试"
+
+#: app/Search/SearchBox.tsx
+msgid "Suchergebnisse"
+msgstr "搜索结果"
+
+#: app/Sun/DateControl.tsx
+msgid "Vorheriger Tag"
+msgstr "前一天"
+
+#: app/Sun/DateControl.tsx
+msgid "Winter (21.12.)"
+msgstr "冬至（12月21日）"
+
+#: app/Settings/ThemeToggle.tsx
+msgid "Zu dunklem Design wechseln"
+msgstr "切换到深色主题"
+
+#: app/Settings/ThemeToggle.tsx
+msgid "Zu hellem Design wechseln"
+msgstr "切换到浅色主题"

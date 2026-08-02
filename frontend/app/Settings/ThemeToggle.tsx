@@ -1,12 +1,11 @@
-import { localeAtom, t } from '#/Settings/i18n';
 import { applyThemePreference, getThemePreference } from '#/Settings/theme';
-import { useAtomValue } from 'jotai';
+import { useLingui } from '@lingui/react/macro';
 import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 /** Umschalter Dark/Light (FR17). Zeigt den Zustand nach Hydration an. */
 export function ThemeToggle() {
-	const locale = useAtomValue(localeAtom);
+	const { t } = useLingui();
 	const [isDark, setIsDark] = useState<boolean | null>(null);
 
 	useEffect(() => {
@@ -30,7 +29,7 @@ export function ThemeToggle() {
 		<button
 			type="button"
 			onClick={toggle}
-			aria-label={isDark ? t(locale, 'themeToLight') : t(locale, 'themeToDark')}
+			aria-label={isDark ? t`Zu hellem Design wechseln` : t`Zu dunklem Design wechseln`}
 			className="inline-flex size-10 items-center justify-center rounded-panel border border-border bg-card text-card-foreground shadow-sm transition-colors hover:bg-muted"
 		>
 			{isDark === null ? (

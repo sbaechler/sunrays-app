@@ -1,5 +1,8 @@
 import { themeInitScript } from '#/Settings/theme';
 import styles from '#/styles/tailwind.css?url';
+import { i18n } from '@lingui/core';
+import { I18nProvider } from '@lingui/react';
+import '#/Settings/locale';
 import { useEffect, type ReactNode } from 'react';
 import {
 	isRouteErrorResponse,
@@ -53,7 +56,9 @@ export function Document({ children }: { children?: ReactNode }) {
 export default function App() {
 	return (
 		<Document>
-			<Outlet />
+			<I18nProvider i18n={i18n}>
+				<Outlet />
+			</I18nProvider>
 			<ScrollRestoration />
 		</Document>
 	);
@@ -63,7 +68,8 @@ export function HydrateFallback() {
 	return (
 		<Document>
 			<div className="flex min-h-screen items-center justify-center">
-				<p className="text-muted-foreground">Sunrays lädt …</p>
+				{/* Teil der prerenderten Shell (vor JS) — daher locale-neutral */}
+				<p className="text-muted-foreground">Sunrays …</p>
 			</div>
 		</Document>
 	);

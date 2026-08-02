@@ -4,8 +4,7 @@
  * Requests; klare Leer-/Fehlerzustände (AC3).
  */
 import { getGeocodingProvider, type GeocodingResult } from '#/Search/geocoding';
-import { localeAtom, t } from '#/Settings/i18n';
-import { useAtomValue } from 'jotai';
+import { useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
 
 const DEBOUNCE_MS = 300;
@@ -18,7 +17,7 @@ export interface SearchBoxProps {
 type SearchStatus = 'idle' | 'loading' | 'results' | 'empty' | 'error';
 
 export function SearchBox({ onSelect }: SearchBoxProps) {
-	const locale = useAtomValue(localeAtom);
+	const { t } = useLingui();
 	const [query, setQuery] = useState('');
 	const [status, setStatus] = useState<SearchStatus>('idle');
 	const [results, setResults] = useState<GeocodingResult[]>([]);
@@ -95,7 +94,7 @@ export function SearchBox({ onSelect }: SearchBoxProps) {
 	return (
 		<div ref={containerRef} className="relative">
 			<label htmlFor="location-search" className="sr-only">
-				{t(locale, 'searchLabel')}
+				{t`Ort suchen`}
 			</label>
 			<input
 				id="location-search"
@@ -110,14 +109,14 @@ export function SearchBox({ onSelect }: SearchBoxProps) {
 				onChange={e => setQuery(e.target.value)}
 				onKeyDown={onKeyDown}
 				onFocus={() => results.length > 0 && setOpen(true)}
-				placeholder={t(locale, 'searchPlaceholder')}
+				placeholder={t`Ort suchen …`}
 				className="w-full rounded-panel border border-border bg-card px-4 py-2.5 text-card-foreground shadow-sm placeholder:text-muted-foreground"
 			/>
 			{open && (
 				<ul
 					id="location-search-results"
 					role="listbox"
-					aria-label={t(locale, 'searchResults')}
+					aria-label={t`Suchergebnisse`}
 					className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-panel border border-border bg-card shadow-lg"
 				>
 					{status === 'results' &&
@@ -141,15 +140,17 @@ export function SearchBox({ onSelect }: SearchBoxProps) {
 						))}
 					{status === 'empty' && (
 						<li className="px-4 py-2 text-sm text-muted-foreground">
-							{t(locale, 'searchNoResults')}
+							{t`Keine Treffer`}
 						</li>
 					)}
 					{status === 'error' && (
-						<li className="px-4 py-2 text-sm text-error">{t(locale, 'searchError')}</li>
+						<li className="px-4 py-2 text-sm text-error">
+							{t`Suche derzeit nicht erreichbar – bitte später erneut versuchen`}
+						</li>
 					)}
 					{status === 'loading' && (
 						<li className="px-4 py-2 text-sm text-muted-foreground">
-							{t(locale, 'searchLoading')}
+							{t`Suche …`}
 						</li>
 					)}
 				</ul>

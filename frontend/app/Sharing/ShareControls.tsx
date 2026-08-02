@@ -4,7 +4,6 @@
  * PNG exportiert die jeweils aktive Ansicht (2D-Karte oder 3D-Szene).
  */
 import type { MarkerPosition } from '#/Map/state';
-import { localeAtom, t } from '#/Settings/i18n';
 import { buildPngBlob } from '#/Sharing/exportPng';
 import { buildPng3dBlob } from '#/Sharing/exportPng3d';
 import {
@@ -16,7 +15,7 @@ import {
 import { buildFanSvg } from '#/Sharing/exportSvg';
 import type { SunStateResult } from '#/Sun/state';
 import type { CesiumWidget } from '@cesium/engine';
-import { useAtomValue } from 'jotai';
+import { useLingui } from '@lingui/react/macro';
 import { Check, Download, Link as LinkIcon } from 'lucide-react';
 import type maplibregl from 'maplibre-gl';
 import { useState } from 'react';
@@ -39,7 +38,7 @@ export function ShareControls({
 	marker,
 	sun,
 }: ShareControlsProps) {
-	const locale = useAtomValue(localeAtom);
+	const { t } = useLingui();
 	const [copied, setCopied] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const viewReady = viewMode === '2d' ? map !== null : viewer !== null;
@@ -99,7 +98,7 @@ export function ShareControls({
 				onClick={() => void exportPng()}
 				disabled={!ready || busy}
 				className={buttonClass}
-				aria-label={t(locale, 'exportPngLabel')}
+				aria-label={t`Aktuelle Ansicht als PNG exportieren`}
 			>
 				<Download className="size-4" aria-hidden /> PNG
 			</button>
@@ -108,7 +107,7 @@ export function ShareControls({
 				onClick={exportSvg}
 				disabled={sun.status !== 'ready' || marker === null}
 				className={buttonClass + ' border-l border-border'}
-				aria-label={t(locale, 'exportSvgLabel')}
+				aria-label={t`Fächer als SVG exportieren`}
 			>
 				<Download className="size-4" aria-hidden /> SVG
 			</button>
@@ -117,14 +116,14 @@ export function ShareControls({
 				onClick={() => void copyLink()}
 				disabled={marker === null}
 				className={buttonClass + ' border-l border-border'}
-				aria-label={t(locale, 'copyLinkLabel')}
+				aria-label={t`Link zu dieser Ansicht kopieren`}
 			>
 				{copied ? (
 					<Check className="size-4 text-success" aria-hidden />
 				) : (
 					<LinkIcon className="size-4" aria-hidden />
 				)}
-				{copied ? t(locale, 'copied') : t(locale, 'link')}
+				{copied ? t`Kopiert` : t`Link`}
 			</button>
 		</div>
 	);

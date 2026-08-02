@@ -31,7 +31,14 @@
       "dependsOn": ["^typecheck"]
     },
     "@repo/frontend#build": {
-      "inputs": ["public/**", "react-router.config.ts", "vite.config.ts", "styles/tailwind.css"],
+      "inputs": [
+        "app/**",
+        "public/**",
+        "react-router.config.ts",
+        "vite.config.ts",
+        "lingui.config.ts",
+        "styles/tailwind.css"
+      ],
       "dependsOn": ["^build"],
       "outputs": ["build/client/**"],
       "env": [

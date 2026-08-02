@@ -1,0 +1,154 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-08-02 22:14+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: app/routes/_index.tsx
+msgid "3D-Ansicht lädt …"
+msgstr "Loading 3D view …"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Aktuelle Ansicht als PNG exportieren"
+msgstr "Export current view as PNG"
+
+#: app/Map/LocateButton.tsx
+msgid "Aktuelle Position übernehmen"
+msgstr "Use current position"
+
+#: app/routes/_index.tsx
+msgid "Ansicht wählen"
+msgstr "Choose view"
+
+#: app/routes/_index.tsx
+msgid "Berechnung derzeit nur bis ±65° Breite möglich."
+msgstr "Calculation currently limited to ±65° latitude."
+
+#: app/Sun/DateControl.tsx
+msgid "Datum"
+msgstr "Date"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Fächer als SVG exportieren"
+msgstr "Export fan as SVG"
+
+#: app/Sun/DateControl.tsx
+msgid "Frühling (20.3.)"
+msgstr "Spring (Mar 20)"
+
+#: app/Sun/DateControl.tsx
+msgid "Herbst (23.9.)"
+msgstr "Autumn (Sep 23)"
+
+#: app/routes/_index.tsx
+msgid "Hochwertige 3D-Daten sind nicht verfügbar (Terrain/Gebäude). Die 2D-Ansicht ist der verlässliche Fallback."
+msgstr "High-quality 3D data (terrain/buildings) is unavailable. The 2D view is the reliable fallback."
+
+#: app/Sun/DateControl.tsx
+msgid "Jahreszeit …"
+msgstr "Season …"
+
+#: app/Sun/DateControl.tsx
+msgid "Jahreszeit wählen"
+msgstr "Choose season"
+
+#: app/Search/SearchBox.tsx
+msgid "Keine Treffer"
+msgstr "No results"
+
+#: app/routes/_index.tsx
+msgid "Klicke auf die Karte, um das Motiv zu markieren"
+msgstr "Click the map to mark your subject"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Kopiert"
+msgstr "Copied"
+
+#: app/routes/_index.tsx
+msgid "Kulmination"
+msgstr "Culmination"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Link"
+msgstr "Link"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Link zu dieser Ansicht kopieren"
+msgstr "Copy link to this view"
+
+#: app/Sun/DateControl.tsx
+msgid "Nächster Tag"
+msgstr "Next day"
+
+#: app/Search/SearchBox.tsx
+msgid "Ort suchen"
+msgstr "Search location"
+
+#: app/Search/SearchBox.tsx
+msgid "Ort suchen …"
+msgstr "Search location …"
+
+#: app/routes/_index.tsx
+msgid "Rechtliches: Datenschutz und Nutzungsbedingungen"
+msgstr "Legal: privacy policy and terms of use"
+
+#: app/Sun/DateControl.tsx
+msgid "Sommer (21.6.)"
+msgstr "Summer (Jun 21)"
+
+#: app/Settings/LanguageToggle.tsx
+msgid "Sprache wählen"
+msgstr "Choose language"
+
+#: app/Settings/LanguageToggle.tsx
+msgid "Sprache wechseln"
+msgstr "Switch language"
+
+#: app/Map/LocateButton.tsx
+msgid "Standort konnte nicht bestimmt werden – nutze die Ortssuche."
+msgstr "Could not determine your position – use the search instead."
+
+#: app/Map/LocateButton.tsx
+msgid "Standortbestimmung wird von diesem Browser nicht unterstützt."
+msgstr "Geolocation is not supported by this browser."
+
+#: app/Map/LocateButton.tsx
+msgid "Standortzugriff verweigert – nutze die Ortssuche."
+msgstr "Location access denied – use the search instead."
+
+#: app/Search/SearchBox.tsx
+msgid "Suche …"
+msgstr "Searching …"
+
+#: app/Search/SearchBox.tsx
+msgid "Suche derzeit nicht erreichbar – bitte später erneut versuchen"
+msgstr "Search currently unavailable – please try again later"
+
+#: app/Search/SearchBox.tsx
+msgid "Suchergebnisse"
+msgstr "Search results"
+
+#: app/Sun/DateControl.tsx
+msgid "Vorheriger Tag"
+msgstr "Previous day"
+
+#: app/Sun/DateControl.tsx
+msgid "Winter (21.12.)"
+msgstr "Winter (Dec 21)"
+
+#: app/Settings/ThemeToggle.tsx
+msgid "Zu dunklem Design wechseln"
+msgstr "Switch to dark theme"
+
+#: app/Settings/ThemeToggle.tsx
+msgid "Zu hellem Design wechseln"
+msgstr "Switch to light theme"
