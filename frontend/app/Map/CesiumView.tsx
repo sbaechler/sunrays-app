@@ -21,8 +21,8 @@
 import type { MarkerPosition } from '#/Map/state';
 import { trackEvent } from '#/Settings/telemetry';
 import type { SunPath } from '@repo/solar';
-import * as Cesium from 'cesium';
-import 'cesium/Build/Cesium/Widgets/widgets.css';
+import * as Cesium from '@cesium/engine';
+import '@cesium/engine/Source/Widget/CesiumWidget.css';
 import { useEffect, useRef, useState } from 'react';
 
 const FAN_LENGTH_METERS = 250;
@@ -40,7 +40,7 @@ export interface CesiumViewProps {
 	/** FR10: keine hochwertigen 3D-Daten verfügbar (Token fehlt / Fehler). */
 	onDataQuality: (quality: 'full' | 'degraded') => void;
 	/** Liefert den Viewer nach der Initialisierung (für den PNG-Export). */
-	onViewerReady?: (viewer: Cesium.Viewer | null) => void;
+	onViewerReady?: (viewer: Cesium.CesiumWidget | null) => void;
 }
 
 function zoomToHeight(zoom: number | null): number {
@@ -58,7 +58,7 @@ export function CesiumView({
 	onViewerReady,
 }: CesiumViewProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const viewerRef = useRef<Cesium.Viewer | null>(null);
+	const viewerRef = useRef<Cesium.CesiumWidget | null>(null);
 	const fanPrimitivesRef = useRef<Cesium.PrimitiveCollection | null>(null);
 	const markerEntityRef = useRef<Cesium.Entity | null>(null);
 	const heightLineEntityRef = useRef<Cesium.Entity | null>(null);
@@ -87,17 +87,7 @@ export function CesiumView({
 		const token = import.meta.env.VITE_CESIUM_ION_TOKEN as string | undefined;
 		if (token) Cesium.Ion.defaultAccessToken = token;
 
-		const viewer = new Cesium.Viewer(containerRef.current, {
-			animation: false,
-			timeline: false,
-			baseLayerPicker: false,
-			geocoder: false,
-			homeButton: false,
-			sceneModePicker: false,
-			navigationHelpButton: false,
-			fullscreenButton: false,
-			infoBox: false,
-			selectionIndicator: false,
+		const viewer = new Cesium.CesiumWidget(containerRef.current, {
 			requestRenderMode: true,
 			maximumRenderTimeChange: Infinity,
 			// PNG-Export (FR11): Buffer muss nach dem Rendern lesbar bleiben
@@ -112,7 +102,8 @@ export function CesiumView({
 		});
 		viewer.scene.globe.depthTestAgainstTerrain = true;
 		if (import.meta.env.DEV) {
-			(window as unknown as { __sunraysViewer?: Cesium.Viewer }).__sunraysViewer = viewer;
+			(window as unknown as { __sunraysViewer?: Cesium.CesiumWidget }).__sunraysViewer =
+				viewer;
 		}
 		viewer.scene.renderError.addEventListener((_scene, error) => {
 			console.error('Cesium renderError:', error instanceof Error ? error.message : error);

@@ -9,6 +9,9 @@
     "directory": "./frontend/build/client",
     "not_found_handling": "single-page-application"
   },
+  "secrets": {
+		"required": ["VITE_CESIUM_ION_TOKEN"]
+	},
   "compatibility_flags": [
     "nodejs_compat"
   ]

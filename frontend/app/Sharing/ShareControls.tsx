@@ -16,7 +16,7 @@ import {
 } from '#/Sharing/exportShared';
 import { buildFanSvg } from '#/Sharing/exportSvg';
 import type { SunStateResult } from '#/Sun/state';
-import type { Viewer } from 'cesium';
+import type { CesiumWidget } from '@cesium/engine';
 import { useAtomValue } from 'jotai';
 import { Check, Download, Link as LinkIcon } from 'lucide-react';
 import type maplibregl from 'maplibre-gl';
@@ -25,7 +25,7 @@ import { useState } from 'react';
 export interface ShareControlsProps {
 	viewMode: '2d' | '3d';
 	map: maplibregl.Map | null;
-	viewer: Viewer | null;
+	viewer: CesiumWidget | null;
 	/** FR10: bestimmt die Attribution des 3D-Exports (ion vs. Fallback). */
 	dataQuality: 'full' | 'degraded' | null;
 	marker: MarkerPosition | null;

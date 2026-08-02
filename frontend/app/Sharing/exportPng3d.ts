@@ -15,10 +15,10 @@ import {
 } from '#/Sharing/exportShared';
 import { formatHours } from '#/Sun/state';
 import type { SunPath } from '@repo/solar';
-import type { Viewer } from 'cesium';
+import type { CesiumWidget } from '@cesium/engine';
 
 export interface Png3dExportInput {
-	viewer: Viewer;
+	viewer: CesiumWidget;
 	marker: MarkerPosition;
 	path: SunPath;
 	date: string;

@@ -19,7 +19,7 @@
 		"@repo/solar": "*",
 		"@repo/ui": "*",
 		"@tailwindcss/vite": "^4.3.2",
-		"cesium": "^1.143.0",
+		"@cesium/engine": "^26.1.0",
 		"clsx": "^2.1.1",
 		"isbot": "^5",
 		"jotai": "^2.20.1",

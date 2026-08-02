@@ -12,7 +12,7 @@ import { ShareControls } from '#/Sharing/ShareControls';
 import { DateControl } from '#/Sun/DateControl';
 import { SunFanOverlay } from '#/Sun/SunFanOverlay';
 import { dateAtom, formatHours, sunStateAtom } from '#/Sun/state';
-import type { Viewer as CesiumViewer } from 'cesium';
+import type { CesiumWidget as CesiumViewer } from '@cesium/engine';
 import { useAtom, useAtomValue } from 'jotai';
 import type maplibregl from 'maplibre-gl';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';

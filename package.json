@@ -2,7 +2,6 @@
   "name": "sunrays",
   "private": true,
   "scripts": {
-    "postinstall": "node scripts/patch-cesium-csp.mjs",
     "build": "turbo build",
     "build:frontend": "turbo build --filter=@repo/frontend",
     "dev": "turbo run dev",
