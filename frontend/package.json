@@ -12,14 +12,17 @@
 		"test": "vitest run",
 		"test:e2e": "playwright test",
 		"typecheck": "react-router typegen && tsc",
+		"i18n:extract": "lingui extract",
 		"format": "prettier --write ."
 	},
 	"dependencies": {
+		"@cesium/engine": "^26.1.0",
+		"@lingui/core": "^6.6.0",
+		"@lingui/react": "^6.6.0",
 		"@react-router/node": "^7.15.1",
 		"@repo/solar": "*",
 		"@repo/ui": "*",
 		"@tailwindcss/vite": "^4.3.2",
-		"@cesium/engine": "^26.1.0",
 		"clsx": "^2.1.1",
 		"isbot": "^5",
 		"jotai": "^2.20.1",
@@ -33,6 +36,10 @@
 		"tailwindcss-animate": "^1.0.7"
 	},
 	"devDependencies": {
+		"@babel/core": "^7.29.7",
+		"@babel/preset-typescript": "^7.29.7",
+		"@lingui/cli": "^6.6.0",
+		"@lingui/vite-plugin": "^6.6.0",
 		"@playwright/test": "^1.61.1",
 		"@react-router/dev": "^7.15.1",
 		"@repo/eslint-config": "*",
@@ -44,6 +51,7 @@
 		"autoprefixer": "^10.5.2",
 		"eslint-plugin-react-compiler": "^19.1.0-rc.2",
 		"prettier": "^3.9.4",
+		"vite-plugin-babel": "^1.7.3",
 		"vitest": "^4.1.9"
 	}
 }

@@ -1,0 +1,154 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-08-02 22:40+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: es\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: app/routes/_index.tsx
+msgid "3D-Ansicht lädt …"
+msgstr "Cargando vista 3D …"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Aktuelle Ansicht als PNG exportieren"
+msgstr "Exportar la vista actual como PNG"
+
+#: app/Map/LocateButton.tsx
+msgid "Aktuelle Position übernehmen"
+msgstr "Usar la posición actual"
+
+#: app/routes/_index.tsx
+msgid "Ansicht wählen"
+msgstr "Elegir vista"
+
+#: app/routes/_index.tsx
+msgid "Berechnung derzeit nur bis ±65° Breite möglich."
+msgstr "El cálculo está limitado actualmente a ±65° de latitud."
+
+#: app/Sun/DateControl.tsx
+msgid "Datum"
+msgstr "Fecha"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Fächer als SVG exportieren"
+msgstr "Exportar el abanico como SVG"
+
+#: app/Sun/DateControl.tsx
+msgid "Frühling (20.3.)"
+msgstr "Primavera (20/03)"
+
+#: app/Sun/DateControl.tsx
+msgid "Herbst (23.9.)"
+msgstr "Otoño (23/09)"
+
+#: app/routes/_index.tsx
+msgid "Hochwertige 3D-Daten sind nicht verfügbar (Terrain/Gebäude). Die 2D-Ansicht ist der verlässliche Fallback."
+msgstr "Los datos 3D de alta calidad (terreno/edificios) no están disponibles. La vista 2D es la alternativa fiable."
+
+#: app/Sun/DateControl.tsx
+msgid "Jahreszeit …"
+msgstr "Estación …"
+
+#: app/Sun/DateControl.tsx
+msgid "Jahreszeit wählen"
+msgstr "Elegir estación"
+
+#: app/Search/SearchBox.tsx
+msgid "Keine Treffer"
+msgstr "Sin resultados"
+
+#: app/routes/_index.tsx
+msgid "Klicke auf die Karte, um das Motiv zu markieren"
+msgstr "Haz clic en el mapa para marcar tu sujeto"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Kopiert"
+msgstr "Copiado"
+
+#: app/routes/_index.tsx
+msgid "Kulmination"
+msgstr "Culminación"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Link"
+msgstr "Enlace"
+
+#: app/Sharing/ShareControls.tsx
+msgid "Link zu dieser Ansicht kopieren"
+msgstr "Copiar enlace a esta vista"
+
+#: app/Sun/DateControl.tsx
+msgid "Nächster Tag"
+msgstr "Día siguiente"
+
+#: app/Search/SearchBox.tsx
+msgid "Ort suchen"
+msgstr "Buscar lugar"
+
+#: app/Search/SearchBox.tsx
+msgid "Ort suchen …"
+msgstr "Buscar lugar …"
+
+#: app/routes/_index.tsx
+msgid "Rechtliches: Datenschutz und Nutzungsbedingungen"
+msgstr "Avisos legales: privacidad y condiciones de uso"
+
+#: app/Sun/DateControl.tsx
+msgid "Sommer (21.6.)"
+msgstr "Verano (21/06)"
+
+#: app/Settings/LanguageToggle.tsx
+msgid "Sprache wählen"
+msgstr "Elegir idioma"
+
+#: app/Settings/LanguageToggle.tsx
+msgid "Sprache wechseln"
+msgstr "Cambiar idioma"
+
+#: app/Map/LocateButton.tsx
+msgid "Standort konnte nicht bestimmt werden – nutze die Ortssuche."
+msgstr "No se pudo determinar tu posición – usa la búsqueda."
+
+#: app/Map/LocateButton.tsx
+msgid "Standortbestimmung wird von diesem Browser nicht unterstützt."
+msgstr "Este navegador no admite la geolocalización."
+
+#: app/Map/LocateButton.tsx
+msgid "Standortzugriff verweigert – nutze die Ortssuche."
+msgstr "Acceso a la ubicación denegado – usa la búsqueda."
+
+#: app/Search/SearchBox.tsx
+msgid "Suche …"
+msgstr "Buscando …"
+
+#: app/Search/SearchBox.tsx
+msgid "Suche derzeit nicht erreichbar – bitte später erneut versuchen"
+msgstr "Búsqueda no disponible en este momento – inténtalo más tarde"
+
+#: app/Search/SearchBox.tsx
+msgid "Suchergebnisse"
+msgstr "Resultados de búsqueda"
+
+#: app/Sun/DateControl.tsx
+msgid "Vorheriger Tag"
+msgstr "Día anterior"
+
+#: app/Sun/DateControl.tsx
+msgid "Winter (21.12.)"
+msgstr "Invierno (21/12)"
+
+#: app/Settings/ThemeToggle.tsx
+msgid "Zu dunklem Design wechseln"
+msgstr "Cambiar al tema oscuro"
+
+#: app/Settings/ThemeToggle.tsx
+msgid "Zu hellem Design wechseln"
+msgstr "Cambiar al tema claro"

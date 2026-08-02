@@ -3,8 +3,7 @@
  * Marker — nur auf explizite Nutzeraktion (NFR8). Bei verweigerter
  * Berechtigung bleibt die manuelle Suche der Weg (AC3).
  */
-import { localeAtom, t } from '#/Settings/i18n';
-import { useAtomValue } from 'jotai';
+import { useLingui } from '@lingui/react/macro';
 import { LocateFixed } from 'lucide-react';
 import { useState } from 'react';
 
@@ -14,12 +13,12 @@ export interface LocateButtonProps {
 }
 
 export function LocateButton({ onLocate, onError }: LocateButtonProps) {
-	const locale = useAtomValue(localeAtom);
+	const { t } = useLingui();
 	const [busy, setBusy] = useState(false);
 
 	const locate = () => {
 		if (!('geolocation' in navigator)) {
-			onError(t(locale, 'locateUnsupported'));
+			onError(t`Standortbestimmung wird von diesem Browser nicht unterstützt.`);
 			return;
 		}
 		setBusy(true);
@@ -32,8 +31,8 @@ export function LocateButton({ onLocate, onError }: LocateButtonProps) {
 				setBusy(false);
 				onError(
 					err.code === err.PERMISSION_DENIED
-						? t(locale, 'locateDenied')
-						: t(locale, 'locateFailed'),
+						? t`Standortzugriff verweigert – nutze die Ortssuche.`
+						: t`Standort konnte nicht bestimmt werden – nutze die Ortssuche.`,
 				);
 			},
 			{ enableHighAccuracy: true, timeout: 10_000 },
@@ -45,7 +44,7 @@ export function LocateButton({ onLocate, onError }: LocateButtonProps) {
 			type="button"
 			onClick={locate}
 			disabled={busy}
-			aria-label={t(locale, 'locateLabel')}
+			aria-label={t`Aktuelle Position übernehmen`}
 			className="inline-flex size-10 items-center justify-center rounded-panel border border-border bg-card text-card-foreground shadow-sm transition-colors hover:bg-muted disabled:opacity-60"
 		>
 			<LocateFixed className={'size-5' + (busy ? ' animate-pulse' : '')} aria-hidden />

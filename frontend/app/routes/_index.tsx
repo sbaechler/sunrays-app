@@ -6,12 +6,12 @@ import { readUrlState, writeUrlState } from '#/Map/urlState';
 import { SearchBox } from '#/Search/SearchBox';
 import { LanguageToggle } from '#/Settings/LanguageToggle';
 import { ThemeToggle } from '#/Settings/ThemeToggle';
-import { localeAtom, t } from '#/Settings/i18n';
 import { ShareControls } from '#/Sharing/ShareControls';
 import { DateControl } from '#/Sun/DateControl';
 import { SunFanOverlay } from '#/Sun/SunFanOverlay';
 import { dateAtom, formatHours, sunStateAtom } from '#/Sun/state';
 import type { CesiumWidget as CesiumViewer } from '@cesium/engine';
+import { useLingui } from '@lingui/react/macro';
 import { useAtom, useAtomValue } from 'jotai';
 import type maplibregl from 'maplibre-gl';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
@@ -38,7 +38,7 @@ export default function Index() {
 	const [viewMode, setViewMode] = useAtom(viewModeAtom);
 	const [date, setDate] = useAtom(dateAtom);
 	const sun = useAtomValue(sunStateAtom);
-	const locale = useAtomValue(localeAtom);
+	const { t } = useLingui();
 	const [hydratedFromUrl, setHydratedFromUrl] = useState(false);
 	const [map, setMap] = useState<maplibregl.Map | null>(null);
 	const [viewer, setViewer] = useState<CesiumViewer | null>(null);
@@ -101,7 +101,7 @@ export default function Index() {
 				<Suspense
 					fallback={
 						<div className="absolute inset-0 flex items-center justify-center bg-muted">
-							<p className="text-muted-foreground">{t(locale, 'loading3d')}</p>
+							<p className="text-muted-foreground">{t`3D-Ansicht lädt …`}</p>
 						</div>
 					}
 				>
@@ -125,7 +125,7 @@ export default function Index() {
 			{viewMode === '3d' && dataQuality === 'degraded' && (
 				<div className="pointer-events-none absolute inset-x-0 top-20 z-10 flex justify-center">
 					<p className="max-w-md rounded-panel border border-warning/50 bg-card/90 px-4 py-2 text-sm text-card-foreground shadow-sm backdrop-blur">
-						{t(locale, 'no3dData')}
+						{t`Hochwertige 3D-Daten sind nicht verfügbar (Terrain/Gebäude). Die 2D-Ansicht ist der verlässliche Fallback.`}
 					</p>
 				</div>
 			)}
@@ -134,14 +134,14 @@ export default function Index() {
 			{marker === null && (
 				<div className="pointer-events-none absolute inset-x-0 top-20 z-10 flex justify-center">
 					<p className="rounded-panel border border-border bg-card/90 px-4 py-2 text-sm text-card-foreground shadow-sm backdrop-blur">
-						{t(locale, 'clickToPlaceMarker')}
+						{t`Klicke auf die Karte, um das Motiv zu markieren`}
 					</p>
 				</div>
 			)}
 			{sun.status === 'out-of-range' && (
 				<div className="pointer-events-none absolute inset-x-0 top-20 z-10 flex justify-center">
 					<p className="rounded-panel border border-warning/50 bg-card/90 px-4 py-2 text-sm text-card-foreground shadow-sm backdrop-blur">
-						{t(locale, 'outOfRange')}
+						{t`Berechnung derzeit nur bis ±65° Breite möglich.`}
 					</p>
 				</div>
 			)}
@@ -160,7 +160,7 @@ export default function Index() {
 			<div className="absolute right-4 top-4 z-10 flex items-center gap-2">
 				<div
 					role="group"
-					aria-label={t(locale, 'viewChoose')}
+					aria-label={t`Ansicht wählen`}
 					className="flex overflow-hidden rounded-panel border border-border bg-card shadow-sm"
 				>
 					{(['2d', '3d'] as const).map(mode => (
@@ -194,8 +194,8 @@ export default function Index() {
 				<ThemeToggle />
 				<Link
 					to="/rechtliches"
-					title={t(locale, 'legalLabel')}
-					aria-label={t(locale, 'legalLabel')}
+					title={t`Rechtliches: Datenschutz und Nutzungsbedingungen`}
+					aria-label={t`Rechtliches: Datenschutz und Nutzungsbedingungen`}
 					className="inline-flex size-10 items-center justify-center rounded-panel border border-border bg-card text-card-foreground shadow-sm transition-colors hover:bg-muted"
 				>
 					§
@@ -232,7 +232,7 @@ export default function Index() {
 						<span className="text-sun-riseset">↑ {formatHours(sun.path.sunRiseHours)}</span>
 						<span className="mx-2 text-muted-foreground">·</span>
 						<span>
-							{t(locale, 'culmination')} {formatHours(sun.path.sunTransitHours)}
+							{t`Kulmination`} {formatHours(sun.path.sunTransitHours)}
 						</span>
 						<span className="mx-2 text-muted-foreground">·</span>
 						<span className="text-sun-riseset">↓ {formatHours(sun.path.sunSetHours)}</span>
