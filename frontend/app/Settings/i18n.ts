@@ -50,6 +50,7 @@ export const MESSAGES = {
 		loading3d: '3D-Ansicht lädt …',
 		mapAria: 'Kartenansicht',
 		markerAria: 'Motiv-Standort',
+		legalLabel: 'Rechtliches: Datenschutz und Nutzungsbedingungen',
 	},
 	en: {
 		appDescription: 'Sun path for any location and date – planning tool for DoPs and photographers',
@@ -92,6 +93,7 @@ export const MESSAGES = {
 		loading3d: 'Loading 3D view …',
 		mapAria: 'Map view',
 		markerAria: 'Subject location',
+		legalLabel: 'Legal: privacy policy and terms of use',
 	},
 } as const;
 

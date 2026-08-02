@@ -16,7 +16,7 @@ import type { CesiumWidget as CesiumViewer } from '@cesium/engine';
 import { useAtom, useAtomValue } from 'jotai';
 import type maplibregl from 'maplibre-gl';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
-import type { MetaFunction } from 'react-router';
+import { Link, type MetaFunction } from 'react-router';
 
 const CesiumView = lazy(() => import('#/Map/CesiumView').then(m => ({ default: m.CesiumView })));
 
@@ -202,13 +202,14 @@ export default function Index() {
 				/>
 				<LanguageToggle />
 				<ThemeToggle />
-				<a
-			href="https://github.com/sbaechler/sunrays-app/blob/main/docs/datenschutzerklaerung.md"
-			title="Datenschutzerklärung"
-			className="inline-flex size-10 items-center justify-center rounded-panel border border-border bg-card text-card-foreground shadow-sm transition-colors hover:bg-muted"
-		>
-			§
-		</a>
+				<Link
+					to="/rechtliches"
+					title={t(locale, 'legalLabel')}
+					aria-label={t(locale, 'legalLabel')}
+					className="inline-flex size-10 items-center justify-center rounded-panel border border-border bg-card text-card-foreground shadow-sm transition-colors hover:bg-muted"
+				>
+					§
+				</Link>
 			</div>
 
 			{notice && (
