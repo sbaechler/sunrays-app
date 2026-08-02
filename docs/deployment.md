@@ -31,10 +31,10 @@ Einmalige manuelle Einrichtung (Account-gebunden, kann nicht automatisiert werde
    ausgewertet); der Service-Worker (`frontend/public/sw.js`) hält die App-Shell offline.
 6. Deployment-URL nach dem ersten Build hier eintragen: `https://<projekt>.pages.dev`
 
-## Telemetrie-Setup (Story 6.4, später)
+## Telemetrie-Setup
 
-- Cloudflare Web Analytics: im Pages-Projekt aktivieren (cookie-frei).
-- Umami Cloud: Account + Website-ID anlegen, Snippet/ENV in der App hinterlegen.
+- Cloudflare Web Analytics: im Pages-Projekt aktivieren (cookie-frei). Mehr als das gibt es
+  bewusst nicht — die App lädt kein eigenes Analytics-Skript und sendet keine Custom Events.
 
 ## API-Keys / Tokens (manuelle Schritte)
 
@@ -44,7 +44,6 @@ In `.env` (Monorepo-Root) eintragen — alle optional, App degradiert kontrollie
 | ----------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------ |
 | `VITE_CESIUM_ION_TOKEN`                               | Cesium ion Community (kostenlos) | 3D: World Terrain + OSM Buildings; ohne Token: Hinweisbanner + Minimal-Globus (FR10) |
 | `VITE_GEOAPIFY_KEY`                                   | Geoapify Free                    | Geocoding-Primärprovider; ohne Key läuft Photon (key-los)                            |
-| `VITE_UMAMI_WEBSITE_ID` (+ optional `VITE_UMAMI_SRC`) | Umami Cloud Free                 | Custom-Event-Telemetrie; ohne ID keine Events                                        |
 
 Nach Eintrag des ion-Tokens: Story 4.1 Go/No-Go-PoC abschließen (Terrain/Gebäude prüfen,
 Streaming-Volumen einer Session gegen die 15-GB-Quote messen, PNG-Export der 3D-Szene testen).

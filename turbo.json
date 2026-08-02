@@ -38,9 +38,7 @@
         "VITE_BUILD_NUMBER",
         "VITE_VERSION",
         "VITE_CESIUM_ION_TOKEN",
-        "VITE_GEOAPIFY_KEY",
-        "VITE_UMAMI_WEBSITE_ID",
-        "VITE_UMAMI_SRC"
+        "VITE_GEOAPIFY_KEY"
       ]
     },
     "@repo/ui#typecheck": {

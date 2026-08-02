@@ -1,4 +1,3 @@
-import { initTelemetry } from '#/Settings/telemetry';
 import { themeInitScript } from '#/Settings/theme';
 import styles from '#/styles/tailwind.css?url';
 import { useEffect, type ReactNode } from 'react';
@@ -52,9 +51,6 @@ export function Document({ children }: { children?: ReactNode }) {
 }
 
 export default function App() {
-	useEffect(() => {
-		initTelemetry();
-	}, []);
 	return (
 		<Document>
 			<Outlet />

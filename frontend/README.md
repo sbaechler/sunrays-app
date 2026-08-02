@@ -25,5 +25,5 @@ npm run test:e2e     # Playwright-Smoke (baut + startet Preview selbst)
 npm run typecheck
 ```
 
-ENV (Monorepo-Root `.env`): `VITE_CESIUM_ION_TOKEN` (3D), optional `VITE_GEOAPIFY_KEY`,
-`VITE_UMAMI_WEBSITE_ID`. Deployment: siehe `docs/deployment.md`.
+ENV (Monorepo-Root `.env`): `VITE_CESIUM_ION_TOKEN` (3D), optional `VITE_GEOAPIFY_KEY`.
+Deployment: siehe `docs/deployment.md`.

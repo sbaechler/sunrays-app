@@ -5,7 +5,6 @@
  */
 import type { MarkerPosition } from '#/Map/state';
 import { localeAtom, t } from '#/Settings/i18n';
-import { trackEvent } from '#/Settings/telemetry';
 import { buildPngBlob } from '#/Sharing/exportPng';
 import { buildPng3dBlob } from '#/Sharing/exportPng3d';
 import {
@@ -64,7 +63,6 @@ export function ShareControls({
 						: null;
 			if (!blob) return;
 			downloadBlob(blob, exportFilename('png', sun.date, marker.lat, marker.lon));
-			trackEvent('export_png', { view: viewMode });
 		} finally {
 			setBusy(false);
 		}
@@ -83,12 +81,10 @@ export function ShareControls({
 			new Blob([svg], { type: 'image/svg+xml' }),
 			exportFilename('svg', sun.date, sun.latitude, sun.longitude),
 		);
-		trackEvent('export_svg');
 	};
 
 	const copyLink = async () => {
 		await navigator.clipboard.writeText(window.location.href);
-		trackEvent('share_link');
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2000);
 	};

@@ -7,7 +7,6 @@ import { SearchBox } from '#/Search/SearchBox';
 import { LanguageToggle } from '#/Settings/LanguageToggle';
 import { ThemeToggle } from '#/Settings/ThemeToggle';
 import { localeAtom, t } from '#/Settings/i18n';
-import { trackEvent } from '#/Settings/telemetry';
 import { ShareControls } from '#/Sharing/ShareControls';
 import { DateControl } from '#/Sun/DateControl';
 import { SunFanOverlay } from '#/Sun/SunFanOverlay';
@@ -83,15 +82,6 @@ export default function Index() {
 		setViewMode(mode);
 		writeUrlState({ view: mode });
 	};
-
-	// Telemetrie (FR18): eine "Simulation" = berechneter Fächer für Ort+Datum
-	const simulationKey =
-		sun.status === 'ready'
-			? `${sun.latitude.toFixed(5)},${sun.longitude.toFixed(5)},${sun.date}`
-			: null;
-	useEffect(() => {
-		if (simulationKey) trackEvent('simulation');
-	}, [simulationKey]);
 
 	const [year = 0, month = 0, day = 0] = date.split('-').map(Number);
 

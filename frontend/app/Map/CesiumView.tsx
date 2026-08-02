@@ -19,7 +19,6 @@
  * Tracking über keydown/keyup).
  */
 import type { MarkerPosition } from '#/Map/state';
-import { trackEvent } from '#/Settings/telemetry';
 import type { SunPath } from '@repo/solar';
 import * as Cesium from '@cesium/engine';
 import '@cesium/engine/Source/Widget/CesiumWidget.css';
@@ -113,7 +112,6 @@ export function CesiumView({
 		void (async () => {
 			if (!token) {
 				callbacksRef.current.onDataQuality('degraded');
-				trackEvent('missing_3d_data', { reason: 'no_ion_token' });
 				return;
 			}
 			try {
@@ -130,7 +128,6 @@ export function CesiumView({
 			} catch {
 				if (!disposed) {
 					callbacksRef.current.onDataQuality('degraded');
-					trackEvent('quota_degradation', { source: 'cesium_ion' });
 				}
 			}
 		})();
