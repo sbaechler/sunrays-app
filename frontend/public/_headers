@@ -17,3 +17,8 @@
 
 /sw.js
   Cache-Control: no-cache
+
+# OG/Twitter share image — cache, but allow refresh after redeploy
+/og.jpg
+  Cache-Control: public, max-age=86400
+  Content-Type: image/jpeg

@@ -26,6 +26,10 @@ export function links() {
 const APP_DESCRIPTION =
 	'Sonnenverlauf für Ort und Datum – Planungstool für DoPs und Fotograf:innen';
 
+/** Absolute origin for OG/Twitter cards (crawlers need absolute image URLs). */
+const SITE_ORIGIN = 'https://sunrays.app';
+const OG_IMAGE = `${SITE_ORIGIN}/og.jpg`;
+
 export function Document({ children }: { children?: ReactNode }) {
 	return (
 		// suppressHydrationWarning: das Theme-Init-Script setzt die dark-Klasse vor der Hydration
@@ -39,8 +43,16 @@ export function Document({ children }: { children?: ReactNode }) {
 				<meta property="og:title" content="Sunrays" />
 				<meta property="og:description" content={APP_DESCRIPTION} />
 				<meta property="og:type" content="website" />
-				<meta property="og:image" content="/icon-512.png" />
-				<meta name="twitter:card" content="summary" />
+				<meta property="og:url" content={`${SITE_ORIGIN}/`} />
+				<meta property="og:image" content={OG_IMAGE} />
+				<meta property="og:image:type" content="image/jpeg" />
+				<meta property="og:image:width" content="1200" />
+				<meta property="og:image:height" content="630" />
+				<meta property="og:image:alt" content="Sunrays – Sonnenverlauf über einer Karte planen" />
+				<meta name="twitter:card" content="summary_large_image" />
+				<meta name="twitter:title" content="Sunrays" />
+				<meta name="twitter:description" content={APP_DESCRIPTION} />
+				<meta name="twitter:image" content={OG_IMAGE} />
 				<script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
 				<Meta />
 				<Links />
