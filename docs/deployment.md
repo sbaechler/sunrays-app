@@ -28,7 +28,9 @@ Einmalige manuelle Einrichtung (Account-gebunden, kann nicht automatisiert werde
    werden. Ohne `VITE_CESIUM_ION_TOKEN` startet die 3D-Ansicht im degradierten Modus (FR10).
 4. Preview-Deployments für Branches sind bei Cloudflare Pages automatisch aktiv.
 5. Security-Header und Caching kommen aus `frontend/public/_headers` (wird von Pages automatisch
-   ausgewertet); der Service-Worker (`frontend/public/sw.js`) hält die App-Shell offline.
+   ausgewertet); der Service-Worker (`frontend/public/sw.js`, nach dem Build mit Locale-Chunks
+   angereichert via `frontend/scripts/inject-sw-precache.mjs`) hält App-Shell **und alle
+   i18n-Kataloge** offline.
 6. Deployment-URL nach dem ersten Build hier eintragen: `https://<projekt>.pages.dev`
 
 ## Telemetrie-Setup

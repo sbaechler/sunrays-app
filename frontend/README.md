@@ -1,7 +1,7 @@
 # Sunrays Frontend
 
 Die produktive Web-App: Sonnenverlauf für Ort und Datum — Planungstool für DoPs und Fotograf:innen.
-2D (MapLibre + OpenFreeMap), 3D (CesiumJS + ion), Export (PNG/SVG/Share-Link), PWA, DE/EN.
+2D (MapLibre + OpenFreeMap), 3D (CesiumJS + ion), Export (PNG/SVG/Share-Link), PWA, i18n (7 Sprachen offline).
 
 ## Struktur (feature-basiert)
 

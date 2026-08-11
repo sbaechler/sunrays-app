@@ -4,9 +4,23 @@
  * - Gehashte Build-Assets (/assets/): cache-first (immutable Dateinamen).
  * - Alles andere (Tiles, APIs, Cesium-Streams): unangetastet — Karten-Daten
  *   zu cachen würde die Quotas der freien Dienste verzerren.
+ *
+ * PRECACHE_EXTRA und CACHE werden beim Build von
+ * scripts/inject-sw-precache.mjs mit den gehashten Locale-Chunks befüllt
+ * (messages-*.js), damit alle Sprachen offline wählbar sind.
  */
-const CACHE = 'sunrays-shell-v1';
-const SHELL = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
+const CACHE = 'sunrays-shell-dev';
+/** @type {string[]} Build injects `/assets/messages-*.js` here. */
+const PRECACHE_EXTRA = [];
+
+const SHELL = [
+	'/',
+	'/manifest.webmanifest',
+	'/icon-192.png',
+	'/icon-512.png',
+	'/og.jpg',
+	...PRECACHE_EXTRA,
+];
 
 self.addEventListener('install', event => {
 	event.waitUntil(
