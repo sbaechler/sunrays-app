@@ -13,7 +13,7 @@
 import { i18n } from '@lingui/core';
 import type { Messages } from '@lingui/core';
 import { atom } from 'jotai';
-import { messages as deMessages } from '../locales/de/messages.po';
+import { messages as deMessages } from '#/locales/de/messages.po';
 
 export type Locale = 'de' | 'en' | 'fr' | 'it' | 'es' | 'ru' | 'zh';
 
@@ -44,7 +44,9 @@ async function loadCatalog(locale: Locale): Promise<Messages> {
 	const cached = catalogCache.get(locale);
 	if (cached) return cached;
 	// Vite bündelt jede Sprache als eigenen Chunk und lädt nur die aktive
-	const { messages } = await import(`../locales/${locale}/messages.po`);
+	const { messages } = (await import(`../locales/${locale}/messages.po`)) as {
+		messages: Messages;
+	};
 	catalogCache.set(locale, messages);
 	return messages;
 }
